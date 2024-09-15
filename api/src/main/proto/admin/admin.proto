@@ -24,7 +24,7 @@ message DoctorData {
 
 message DoctorAvailability {
   string doctor = 1;
-  repeated string availability = 2;
+  string availability = 2;
 }
 
 message Doctor {

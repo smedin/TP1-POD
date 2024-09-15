@@ -1,5 +1,7 @@
 package ar.edu.itba.pod.server;
 
+import ar.edu.itba.pod.server.models.Hospital;
+import ar.edu.itba.pod.server.servants.AdminServant;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,9 @@ public class Server {
         logger.info(" Server Starting ...");
 
         int port = 50051;
+        Hospital hospital = new Hospital();
         io.grpc.Server server = ServerBuilder.forPort(port)
+                .addService(new AdminServant(hospital))
                 .build();
         server.start();
         logger.info("Server started, listening on " + port);
