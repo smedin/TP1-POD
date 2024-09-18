@@ -3,12 +3,11 @@ package ar.edu.itba.pod.client;
 import ar.edu.itba.pod.grpc.admin.AdminServiceGrpc;
 import ar.edu.itba.pod.grpc.admin.DoctorAvailability;
 import ar.edu.itba.pod.grpc.admin.DoctorData;
-import ar.edu.itba.pod.grpc.admin.RoomData;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.BoolValue;
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class AdminClient {
         switch (action) {
             case "addRoom":
                 latch = new CountDownLatch(1);
-                ListenableFuture<BoolValue> roomResponse = stub.addRoom(RoomData.newBuilder().build());
+                ListenableFuture<BoolValue> roomResponse = stub.addRoom(Empty.newBuilder().build());
                 // TODO: do a callback class in another file
                 Futures.addCallback(roomResponse, new FutureCallback<BoolValue>() {
                     @Override
