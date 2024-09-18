@@ -1,35 +1,97 @@
 package ar.edu.itba.pod.server.models;
 
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Hospital {
 
     private final List<Room> rooms;
     private final Set<Doctor> doctors;
+    private final ReadWriteLock lock;
 
     public Hospital() {
         this.rooms = new ArrayList<>();
-        this.doctors = new HashSet<>();
+        this.doctors = new HashSet<>(); // TODO: concurrent set
+        this.lock = new ReentrantReadWriteLock(true);
     }
 
     public List<Room> getRooms() {
-        return rooms;
+        lock.readLock().lock();
+        try {
+            return new ArrayList<>(rooms);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public void addRoom(Room room) {
-        rooms.add(room);
+        lock.writeLock().lock();
+        try {
+            rooms.add(room);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Set<Doctor> getDoctors() {
-        return doctors;
+        lock.readLock().lock();
+        try {
+            return new HashSet<>(doctors);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public Optional<Doctor> getDoctorByName(String name) {
-        return doctors.stream().filter(doctor -> doctor.getName().equals(name)).findFirst();
+        lock.readLock().lock();
+        try {
+            return doctors.stream().filter(doctor -> doctor.getName().equals(name)).findFirst();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean defineDoctorAvailability(String doctorName, String availability) {
+        lock.writeLock().lock();
+        try {
+            Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
+            if (maybeDoctor.isPresent()) {
+                Doctor doctor = maybeDoctor.get();
+
+                if (doctor.getAvailability().equals("attending")) {
+                    return false;
+                }
+
+                doctor.setAvailability(availability);
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public String getDoctorAvailability(String doctorName) {
+        lock.readLock().lock();
+        try {
+            Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
+            return maybeDoctor
+                    .map(Doctor::getAvailability)
+                    .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + doctorName)); // TODO: check
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public boolean addDoctor(Doctor doctor) {
-        return doctors.add(doctor);
+        lock.writeLock().lock();
+        try {
+            return doctors.add(doctor);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
 }

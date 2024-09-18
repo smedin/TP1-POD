@@ -5,25 +5,22 @@ package admin;
 option java_package = "ar.edu.itba.pod.grpc.admin";
 option java_multiple_files = true;
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
 service AdminService {
-  rpc AddRoom(RoomData) returns (google.protobuf.BoolValue);
+  rpc AddRoom(google.protobuf.Empty) returns (google.protobuf.BoolValue);
   rpc AddDoctor(DoctorData) returns (google.protobuf.BoolValue);
   rpc DefineAvailability(DoctorAvailability) returns (google.protobuf.BoolValue);
   rpc GetDoctorAvailability(Doctor) returns (DoctorAvailability);
 }
 
-message RoomData {
-  string name = 1;
-}
-
 message DoctorData {
-  string name = 1;
+  Doctor doctorName = 1;
   string level = 2;
 }
 
 message DoctorAvailability {
-  string doctor = 1;
+  Doctor doctorName = 1;
   string availability = 2;
 }
 

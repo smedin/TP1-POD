@@ -11,7 +11,6 @@ import java.util.Optional;
 public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     private final Hospital hospital;
     private int roomCounter = 1;
-    private final Object roomLock = new Object();
 
 
     public AdminServant(Hospital hospital) {
@@ -20,9 +19,7 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
 
     @Override
     public void addRoom(RoomData request, StreamObserver<BoolValue> response) {
-        synchronized (roomLock) { // TODO: check
-            hospital.addRoom(new Room(roomCounter++));
-        }
+        hospital.addRoom(new Room(roomCounter++));
 
         response.onNext(BoolValue.newBuilder().setValue(true).build());
         response.onCompleted();
@@ -33,58 +30,34 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
         String doctorName = request.getName();
         int maxLevel = Integer.parseInt(request.getLevel());
 
-        if (maxLevel < 1 || maxLevel > 5) {
+        if (maxLevel < 1 || maxLevel > 5) { // TODO: move inside Doctor (model) class
             response.onNext(BoolValue.newBuilder().setValue(false).build());  // Or throw an exception
             response.onCompleted();
             return;
         }
 
-        // Change the doctor message in the .proto to avoid this import
+        // TODO: Change the doctor message in the .proto to avoid this import
         ar.edu.itba.pod.server.models.Doctor doctor = new ar.edu.itba.pod.server.models.Doctor(doctorName, maxLevel);
 
-        synchronized (hospital) {
-            boolean added = hospital.addDoctor(doctor);
-            if (!added) {
-                response.onNext(BoolValue.newBuilder().setValue(false).build());
-                response.onCompleted();
-                return;
-            }
+        boolean added = hospital.addDoctor(doctor);
+        if (!added) {
+            response.onNext(BoolValue.newBuilder().setValue(false).build());  // TODO: check
+            response.onCompleted();
+            return;
         }
 
-        response.onNext(BoolValue.newBuilder().setValue(true).build());
+        response.onNext(BoolValue.newBuilder().setValue(true).build()); // TODO: check
         response.onCompleted();
     }
 
     @Override
     public void defineAvailability(DoctorAvailability request, StreamObserver<BoolValue> response) {
         String doctorName = request.getDoctor();
-        String availability = request.getAvailability();
+        String availability = request.getAvailability(); // TODO: change to enum
 
-        synchronized (hospital) {
-            Optional<ar.edu.itba.pod.server.models.Doctor> maybeDoctor = hospital.getDoctorByName(doctorName);
+        boolean defined = hospital.defineDoctorAvailability(doctorName, availability); // TODO: make defineAvailability inside Hospital syncronized (use writeLock)
 
-            if (maybeDoctor.isEmpty()) {
-                response.onNext(BoolValue.newBuilder().setValue(false).build());
-                response.onCompleted();
-                return;
-            }
-
-            ar.edu.itba.pod.server.models.Doctor doctor = maybeDoctor.get();
-
-            if (doctor.getAvailability().equals("attending")) {
-                response.onError(new IllegalStateException("Doctor is attending another patient and cannot change availability"));
-                return;
-            }
-
-            if (availability.equals("available") || availability.equals("unavailable")) {
-                doctor.setAvailability(availability);
-            } else {
-                response.onError(new IllegalArgumentException("Invalid availability status: " + availability));
-                return;
-            }
-        }
-
-        response.onNext(BoolValue.newBuilder().setValue(true).build());
+        response.onNext(BoolValue.newBuilder().setValue(defined).build());
         response.onCompleted();
     }
 
@@ -92,21 +65,11 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     public void getDoctorAvailability(Doctor request, StreamObserver<DoctorAvailability> response) {
         String doctorName = request.getName();
 
-        synchronized (hospital) {
-            Optional<ar.edu.itba.pod.server.models.Doctor> maybeDoctor = hospital.getDoctorByName(doctorName);
+        String availability = hospital.getDoctorAvailability(doctorName); // TODO: check
 
-            if (maybeDoctor.isEmpty()) {
-                response.onError(new IllegalArgumentException("Doctor not found"));
-                return;
-            }
+        DoctorAvailability toReturn = DoctorAvailability.newBuilder().setDoctor(doctorName).setAvailability(availability).build();
 
-            ar.edu.itba.pod.server.models.Doctor doctor = maybeDoctor.get();
-
-            response.onNext(DoctorAvailability.newBuilder()
-                    .setDoctor(doctorName)
-                    .setAvailability(doctor.getAvailability())
-                    .build());
-            response.onCompleted();
-        }
+        response.onNext(toReturn);
+        response.onCompleted();
     }
 }
