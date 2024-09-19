@@ -8,11 +8,13 @@ public class Hospital {
 
     private final List<Room> rooms;
     private final Set<Doctor> doctors;
+    private final List<Patient> patients; // Waiting room
     private final ReadWriteLock lock;
 
     public Hospital() {
         this.rooms = new ArrayList<>();
         this.doctors = new HashSet<>(); // TODO: concurrent set
+        this.patients = new LinkedList<>();
         this.lock = new ReentrantReadWriteLock(true);
     }
 
@@ -94,4 +96,52 @@ public class Hospital {
         }
     }
 
+    public boolean registerPatient(String name, int emergencyLevel) {
+        lock.writeLock().lock();
+        try {
+            Patient patient = new Patient(name, emergencyLevel);
+            patients.add(patient);
+            patients.sort(Patient::compareTo);
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public Patient getPatientByName(String name) {
+        lock.readLock().lock();
+        try {
+            return patients.stream().filter(patient -> patient.getName().equals(name)).findFirst().orElse(null);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public boolean updateEmergencyLevel(String name, int emergencyLevel) {
+        lock.writeLock().lock();
+        try {
+            Patient patient = getPatientByName(name);
+            if (patient == null) {
+                return false;
+            }
+            patient.setEmergencyLevel(emergencyLevel);
+            patients.sort(Patient::compareTo); //TODO: check/optimize
+            return true;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public int getWaitingTime(String name) {
+        lock.readLock().lock();
+        try {
+            Patient patient = getPatientByName(name);
+            if (patient == null) {
+                return -1;
+            }
+            return patients.indexOf(patient);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 }
