@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.server;
 
+import ar.edu.itba.pod.server.exceptions.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.servants.AdminServant;
 import ar.edu.itba.pod.server.servants.WaitingRoomServant;
@@ -20,6 +21,7 @@ public class Server {
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new AdminServant(hospital))
                 .addService(new WaitingRoomServant(hospital))
+                .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
         logger.info("Server started, listening on " + port);

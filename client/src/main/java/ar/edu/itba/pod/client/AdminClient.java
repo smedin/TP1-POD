@@ -31,8 +31,6 @@ public class AdminClient {
 
         String action = System.getProperty("action");
 
-        System.out.println(action);
-
         AdminServiceGrpc.AdminServiceFutureStub stub = AdminServiceGrpc.newFutureStub(channel);
 
         switch (action) {
@@ -49,7 +47,7 @@ public class AdminClient {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        logger.error("Error adding room: " + t.getMessage());
+                        logger.error(t.getMessage());
                         latch.countDown();
                     }
                 }, Executors.newCachedThreadPool());
@@ -74,7 +72,7 @@ public class AdminClient {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        logger.error("Error adding doctor: " + t.getMessage());
+                        logger.error(t.getMessage());
                         latch.countDown();
                     }
                 }, Executors.newCachedThreadPool());

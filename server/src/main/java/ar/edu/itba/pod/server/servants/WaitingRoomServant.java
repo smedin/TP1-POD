@@ -16,7 +16,7 @@ public class WaitingRoomServant extends WaitingRoomServiceGrpc.WaitingRoomServic
     }
 
     @Override
-    public void RegisterPatient(PatientData request, StreamObserver<BoolValue> response) {
+    public void registerPatient(PatientData request, StreamObserver<BoolValue> response) {
         String patientName = request.getPatientName().getName();
         int emergencyLevel = Integer.parseInt(request.getLevel());
 
@@ -27,7 +27,7 @@ public class WaitingRoomServant extends WaitingRoomServiceGrpc.WaitingRoomServic
     }
 
     @Override
-    public void UpdateEmergencyLevel(PatientData request, StreamObserver<BoolValue> response) {
+    public void updateEmergencyLevel(PatientData request, StreamObserver<BoolValue> response) {
         String patientName = request.getPatientName().getName();
         int emergencyLevel = Integer.parseInt(request.getLevel());
 
@@ -38,7 +38,7 @@ public class WaitingRoomServant extends WaitingRoomServiceGrpc.WaitingRoomServic
     }
 
     @Override
-    public void WaitingTime(Patient request, StreamObserver<Int32Value> response) {
+    public void waitingTime(Patient request, StreamObserver<Int32Value> response) {
         String patientName = request.getName();
 
         int waitingTime = hospital.getWaitingTime(patientName);

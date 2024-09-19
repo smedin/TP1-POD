@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.server.servants;
 
 import ar.edu.itba.pod.grpc.admin.*;
+import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.models.Room;
 import com.google.protobuf.BoolValue;
@@ -27,7 +28,7 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     }
 
     @Override
-    public void addDoctor(DoctorData request, StreamObserver<BoolValue> response) {
+    public void addDoctor(DoctorData request, StreamObserver<BoolValue> response) throws DoctorAlreadyExistsException{
         String doctorName = request.getDoctorName().getName();
         int maxLevel = Integer.parseInt(request.getLevel());
 
@@ -42,9 +43,7 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
 
         boolean added = hospital.addDoctor(doctor);
         if (!added) {
-            response.onNext(BoolValue.newBuilder().setValue(false).build());  // TODO: check
-            response.onCompleted();
-            return;
+            throw new DoctorAlreadyExistsException(doctorName);
         }
 
         response.onNext(BoolValue.newBuilder().setValue(true).build()); // TODO: check
