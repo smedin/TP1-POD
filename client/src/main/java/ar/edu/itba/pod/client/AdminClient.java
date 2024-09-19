@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class AdminClient {
-    private static Logger logger = LoggerFactory.getLogger(Client.class);
+    private static Logger logger = LoggerFactory.getLogger(AdminClient.class);
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {
@@ -29,7 +29,9 @@ public class AdminClient {
                 .usePlaintext()
                 .build();
 
-        String action = "addRoom";
+        String action = System.getProperty("action");
+
+        System.out.println(action);
 
         AdminServiceGrpc.AdminServiceFutureStub stub = AdminServiceGrpc.newFutureStub(channel);
 
@@ -58,10 +60,10 @@ public class AdminClient {
                                 .newBuilder()
                                 .setDoctorName(Doctor
                                                 .newBuilder()
-                                                .setName("Franco")
+                                                .setName(System.getProperty("doctor"))
                                                 .build()
                                 )
-                                .setLevel("2")
+                                .setLevel(System.getProperty("level"))
                                 .build());
                 Futures.addCallback(doctorResponse, new FutureCallback<BoolValue>() {
                     @Override
@@ -81,8 +83,8 @@ public class AdminClient {
                 latch = new CountDownLatch(1);
                 ListenableFuture<BoolValue> availabilityResponse = stub.defineAvailability(DoctorAvailability
                         .newBuilder()
-                        .setDoctorName(Doctor.newBuilder().setName("Franco").build())
-                        .setAvailability("available")
+                        .setDoctorName(Doctor.newBuilder().setName(System.getProperty("doctor")).build())
+                        .setAvailability(System.getProperty("availability"))
                         .build());
                 Futures.addCallback(availabilityResponse, new FutureCallback<BoolValue>() {
                     @Override
@@ -102,7 +104,7 @@ public class AdminClient {
                 latch = new CountDownLatch(1);
                 ListenableFuture<DoctorAvailability> doctorAvailabilityResponse = stub.getDoctorAvailability(ar.edu.itba.pod.grpc.admin.Doctor
                         .newBuilder()
-                        .setName("Franco")
+                        .setName(System.getProperty("doctor"))
                         .build());
                 Futures.addCallback(doctorAvailabilityResponse, new FutureCallback<DoctorAvailability>() {
                     @Override
