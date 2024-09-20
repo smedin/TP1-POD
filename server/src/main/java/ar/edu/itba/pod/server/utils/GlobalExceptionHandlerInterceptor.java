@@ -1,5 +1,6 @@
-package ar.edu.itba.pod.server.exceptions;
+package ar.edu.itba.pod.server.utils;
 
+import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
 import com.google.rpc.Code;
 import io.grpc.*;
 import io.grpc.protobuf.StatusProto;

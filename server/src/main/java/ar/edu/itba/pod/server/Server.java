@@ -1,6 +1,6 @@
 package ar.edu.itba.pod.server;
 
-import ar.edu.itba.pod.server.exceptions.GlobalExceptionHandlerInterceptor;
+import ar.edu.itba.pod.server.utils.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.servants.AdminServant;
 import ar.edu.itba.pod.server.servants.WaitingRoomServant;

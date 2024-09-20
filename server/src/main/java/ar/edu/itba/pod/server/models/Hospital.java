@@ -1,6 +1,8 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
+import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
+import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -65,13 +67,13 @@ public class Hospital {
                 Doctor doctor = maybeDoctor.get();
 
                 if (doctor.getAvailability().equals("attending")) {
-                    return false;
+                    throw new DoctorIsAttendingException(doctorName);
                 }
 
                 doctor.setAvailability(availability);
                 return true;
             } else {
-                return false;
+                throw new DoctorNotFoundException(doctorName);
             }
         } finally {
             lock.writeLock().unlock();
