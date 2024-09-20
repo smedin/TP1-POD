@@ -42,11 +42,7 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
         ar.edu.itba.pod.server.models.Doctor doctor = new ar.edu.itba.pod.server.models.Doctor(doctorName, maxLevel);
 
         boolean added = hospital.addDoctor(doctor);
-        if (!added) {
-            throw new DoctorAlreadyExistsException(doctorName);
-        }
-
-        response.onNext(BoolValue.newBuilder().setValue(true).build()); // TODO: check
+        response.onNext(BoolValue.newBuilder().setValue(added).build()); // TODO: check
         response.onCompleted();
     }
 

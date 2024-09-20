@@ -1,5 +1,7 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
+
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -28,6 +30,7 @@ public class Hospital {
     }
 
     public void addRoom(Room room) {
+
         lock.writeLock().lock();
         try {
             rooms.add(room);
@@ -88,12 +91,17 @@ public class Hospital {
     }
 
     public boolean addDoctor(Doctor doctor) {
+        boolean added;
         lock.writeLock().lock();
         try {
-            return doctors.add(doctor);
+            added = doctors.add(doctor);
+            if(!added) {
+                throw new DoctorAlreadyExistsException(doctor.getName());
+            }
         } finally {
             lock.writeLock().unlock();
         }
+        return true;
     }
 
     public boolean registerPatient(String name, int emergencyLevel) {
