@@ -3,6 +3,7 @@ package ar.edu.itba.pod.server.models;
 import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
 import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
 import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
+import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -96,6 +97,10 @@ public class Hospital {
         boolean added;
         lock.writeLock().lock();
         try {
+            int level = doctor.getMaxLevel();
+            if( level < 1 || level > 5) {
+                throw new InvalidLevelException(level);
+            }
             added = doctors.add(doctor);
             if(!added) {
                 throw new DoctorAlreadyExistsException(doctor.getName());

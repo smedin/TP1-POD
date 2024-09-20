@@ -14,7 +14,7 @@ public class Room {
         this.patientName = "";
     }
 
-    public int getName() {
+    public int getId() {
         return id;
     }
 

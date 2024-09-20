@@ -6,6 +6,7 @@ import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.models.Room;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Int32Value;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Optional;
@@ -20,23 +21,17 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     }
 
     @Override
-    public void addRoom(Empty request, StreamObserver<BoolValue> response) {
+    public void addRoom(Empty request, StreamObserver<Int32Value> response) {
         hospital.addRoom(new Room(roomCounter++));
 
-        response.onNext(BoolValue.newBuilder().setValue(true).build());
+        response.onNext(Int32Value.newBuilder().setValue(roomCounter-1).build());
         response.onCompleted();
     }
 
     @Override
-    public void addDoctor(DoctorData request, StreamObserver<BoolValue> response) throws DoctorAlreadyExistsException{
+    public void addDoctor(DoctorData request, StreamObserver<BoolValue> response) {
         String doctorName = request.getDoctorName().getName();
-        int maxLevel = Integer.parseInt(request.getLevel());
-
-        if (maxLevel < 1 || maxLevel > 5) { // TODO: move inside Doctor (model) class
-            response.onNext(BoolValue.newBuilder().setValue(false).build());  // Or throw an exception
-            response.onCompleted();
-            return;
-        }
+        int maxLevel = request.getLevel();
 
         // TODO: Change the doctor message in the .proto to avoid this import
         ar.edu.itba.pod.server.models.Doctor doctor = new ar.edu.itba.pod.server.models.Doctor(doctorName, maxLevel);

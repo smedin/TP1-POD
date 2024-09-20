@@ -9,6 +9,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
+import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -23,8 +24,8 @@ public class AdminClient {
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {
-        logger.info("TP1-POD Client Starting ...");
-        logger.info("grpc-com-patterns Client Starting ...");
+//        logger.info("TP1-POD Client Starting ...");
+//        logger.info("grpc-com-patterns Client Starting ...");
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
                 .build();
@@ -36,12 +37,12 @@ public class AdminClient {
         switch (action) {
             case "addRoom":
                 latch = new CountDownLatch(1);
-                ListenableFuture<BoolValue> roomResponse = stub.addRoom(Empty.newBuilder().build());
+                ListenableFuture<Int32Value> roomResponse = stub.addRoom(Empty.newBuilder().build());
                 // TODO: do a callback class in another file
-                Futures.addCallback(roomResponse, new FutureCallback<BoolValue>() {
+                Futures.addCallback(roomResponse, new FutureCallback<Int32Value>() {
                     @Override
-                    public void onSuccess(BoolValue result) {
-                        logger.info("Room added: " + result.getValue());
+                    public void onSuccess(Int32Value result) {
+                        logger.info("Room #" + result.getValue() + " added successfully");
                         latch.countDown();
                     }
 
@@ -54,19 +55,20 @@ public class AdminClient {
                 break;
             case "addDoctor":
                 latch = new CountDownLatch(1);
-                ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(DoctorData
+                DoctorData doctorData = DoctorData
+                        .newBuilder()
+                        .setDoctorName(Doctor
                                 .newBuilder()
-                                .setDoctorName(Doctor
-                                                .newBuilder()
-                                                .setName(System.getProperty("doctor"))
-                                                .build()
-                                )
-                                .setLevel(System.getProperty("level"))
-                                .build());
+                                .setName(System.getProperty("doctor"))
+                                .build()
+                        )
+                        .setLevel(Integer.parseInt(System.getProperty("level")))
+                        .build();
+                ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(doctorData);
                 Futures.addCallback(doctorResponse, new FutureCallback<BoolValue>() {
                     @Override
                     public void onSuccess(BoolValue result) {
-                        logger.info("Doctor added: " + result.getValue());
+                        logger.info(doctorData.getDoctorName().getName() + " (" + doctorData.getLevel() + ") added successfully");
                         latch.countDown();
                     }
 

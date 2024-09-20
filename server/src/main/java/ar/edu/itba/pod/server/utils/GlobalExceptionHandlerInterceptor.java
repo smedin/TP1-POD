@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.server.utils;
 
 import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
+import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
 import com.google.rpc.Code;
 import io.grpc.*;
 import io.grpc.protobuf.StatusProto;
@@ -8,6 +9,7 @@ import io.grpc.protobuf.StatusProto;
 import java.util.Map;
 
 import static com.google.rpc.Code.ALREADY_EXISTS;
+import static com.google.rpc.Code.INVALID_ARGUMENT;
 
 
 public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
@@ -40,7 +42,8 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
         }
 
         private final Map<Class<? extends Throwable>, Code> errorCodesByException = Map.of(
-                DoctorAlreadyExistsException.class, ALREADY_EXISTS
+                DoctorAlreadyExistsException.class, ALREADY_EXISTS,
+                InvalidLevelException.class, INVALID_ARGUMENT
         );
 
         private void handleException(RuntimeException exception, ServerCall<T, R> serverCall, Metadata headers) {
