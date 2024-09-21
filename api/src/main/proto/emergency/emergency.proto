@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package emergency;
+
+option java_package = "ar.edu.itba.pod.grpc.emergency";
+option java_multiple_files = true;
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service EmergencyService {
+  rpc StartEmergencyByRoom(Room) returns (EmergencyData);
+  rpc StartAllEmergencies(google.protobuf.Empty) returns (stream EmergencyData);
+  rpc EndEmergency(EndEmergencyData) returns (google.protobuf.BoolValue);
+}
+
+message Room {
+  int32 roomNumber = 1;
+}
+
+message EndEmergencyData {
+  string patientName = 1;
+  string doctorName = 2;
+  Room room = 3;
+}
+
+message EmergencyData {
+  string patientName = 1;
+  string doctorName = 2;
+  RoomData room = 3;
+}
+
+message RoomData {
+  Room room = 1;
+  bool free = 2;
+}
