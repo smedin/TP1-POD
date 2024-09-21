@@ -3,13 +3,13 @@ package ar.edu.itba.pod.server.models;
 public class Room {
 
     private final int id;
-    private String state; // "free" or "occupied"
+    private boolean free;
     private String doctorName;
     private String patientName;
 
     public Room(int id) {
         this.id = id;
-        this.state = "free";
+        this.free = true;
         this.doctorName = "";
         this.patientName = "";
     }
@@ -18,8 +18,8 @@ public class Room {
         return id;
     }
 
-    public String getState() {
-        return state;
+    public boolean isFree() {
+        return free;
     }
 
     public String getDoctorName() {
@@ -30,8 +30,8 @@ public class Room {
         return patientName;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setFree(boolean free) {
+        this.free = free;
     }
 
     public void setDoctorName(String doctorName) {
@@ -41,25 +41,4 @@ public class Room {
     public void setPatientName(String patientName) {
         this.patientName = patientName;
     }
-
-    public void free() {
-        this.state = "free";
-        this.doctorName = "";
-        this.patientName = "";
-    }
-
-    public void occupy(String doctorName, String patientName) {
-        this.state = "occupied";
-        this.doctorName = doctorName;
-        this.patientName = patientName;
-    }
-
-    public boolean isFree() {
-        return state.equals("free");
-    }
-
-    public boolean isOccupied() {
-        return state.equals("occupied");
-    }
-
 }
