@@ -20,11 +20,4 @@ public class AddDoctorCallback extends AbstractFutureCallback<BoolValue> {
         this.getLogger().info(doctorData.getDoctorName().getName() + " (" + doctorData.getLevel() + ") added successfully");
         this.getLatch().countDown();
     }
-
-    @Override
-    public void onFailure(Throwable t) {
-        this.getLogger().error(t.getMessage());
-        this.getLatch().countDown();
-    }
-
 }

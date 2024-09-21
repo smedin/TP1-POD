@@ -5,18 +5,13 @@ import org.slf4j.Logger;
 
 import java.util.concurrent.CountDownLatch;
 
-public class AbstractFutureCallback<V> implements FutureCallback<V> {
+public abstract class AbstractFutureCallback<V> implements FutureCallback<V> {
     private final Logger logger;
     private final CountDownLatch latch;
 
     public AbstractFutureCallback(Logger logger, CountDownLatch latch) {
         this.logger = logger;
         this.latch = latch;
-    }
-
-    @Override
-    public void onSuccess(V v) {
-
     }
 
     @Override
