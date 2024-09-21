@@ -4,6 +4,7 @@ import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
 import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
 import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
 import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+import ar.edu.itba.pod.server.utils.PatientArrival;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -13,14 +14,16 @@ public class Hospital {
 
     private final List<Room> rooms;
     private final Set<Doctor> doctors;
-    private final List<Patient> patients; // Waiting room
+    private final List<PatientArrival> patientArrivals; // Waiting room
     private final ReadWriteLock lock;
+    private int patientCount;
 
     public Hospital() {
         this.rooms = new ArrayList<>();
         this.doctors = new HashSet<>(); // TODO: concurrent set
-        this.patients = new LinkedList<>();
+        this.patientArrivals = new LinkedList<>();
         this.lock = new ReentrantReadWriteLock(true);
+        this.patientCount = 0;
     }
 
     public List<Room> getRooms() {
@@ -115,8 +118,9 @@ public class Hospital {
         lock.writeLock().lock();
         try {
             Patient patient = new Patient(name, emergencyLevel);
-            patients.add(patient);
-            patients.sort(Patient::compareTo);
+            PatientArrival patientWithOrder = new PatientArrival(patientCount++, patient);
+            patientArrivals.add(patientWithOrder);
+            Collections.sort(patientArrivals);
             return true;
         } finally {
             lock.writeLock().unlock();
@@ -126,7 +130,8 @@ public class Hospital {
     public Patient getPatientByName(String name) {
         lock.readLock().lock();
         try {
-            return patients.stream().filter(patient -> patient.getName().equals(name)).findFirst().orElse(null);
+            Optional<PatientArrival> maybePatientArrival = patientArrivals.stream().filter(patientArrival -> Objects.equals(patientArrival.getPatient().getName(), name)).findFirst();
+            return maybePatientArrival.map(PatientArrival::getPatient).orElse(null);
         } finally {
             lock.readLock().unlock();
         }
@@ -140,7 +145,7 @@ public class Hospital {
                 return false;
             }
             patient.setEmergencyLevel(emergencyLevel);
-            patients.sort(Patient::compareTo); //TODO: check/optimize
+            Collections.sort(patientArrivals);
             return true;
         } finally {
             lock.writeLock().unlock();
@@ -154,7 +159,7 @@ public class Hospital {
             if (patient == null) {
                 return -1;
             }
-            return patients.indexOf(patient);
+            return patientArrivals.indexOf(new PatientArrival(0, patient));
         } finally {
             lock.readLock().unlock();
         }

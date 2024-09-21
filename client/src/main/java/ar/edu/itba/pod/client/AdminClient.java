@@ -41,7 +41,6 @@ public class AdminClient {
             case "addRoom":
                 latch = new CountDownLatch(1);
                 ListenableFuture<Int32Value> roomResponse = stub.addRoom(Empty.newBuilder().build());
-                // TODO: do a callback class in another file
                 Futures.addCallback(roomResponse, new AddRoomCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             case "addDoctor":
