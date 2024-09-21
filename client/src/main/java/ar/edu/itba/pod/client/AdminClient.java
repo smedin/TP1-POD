@@ -1,10 +1,13 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.callbacks.admin.AddDoctorCallback;
+import ar.edu.itba.pod.client.callbacks.admin.AddRoomCallback;
+import ar.edu.itba.pod.client.callbacks.admin.DefineAvailabilityCallback;
+import ar.edu.itba.pod.client.callbacks.admin.GetDoctorAvailabilityCallback;
 import ar.edu.itba.pod.grpc.admin.AdminServiceGrpc;
 import ar.edu.itba.pod.grpc.admin.Doctor;
 import ar.edu.itba.pod.grpc.admin.DoctorAvailability;
 import ar.edu.itba.pod.grpc.admin.DoctorData;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
@@ -39,19 +42,7 @@ public class AdminClient {
                 latch = new CountDownLatch(1);
                 ListenableFuture<Int32Value> roomResponse = stub.addRoom(Empty.newBuilder().build());
                 // TODO: do a callback class in another file
-                Futures.addCallback(roomResponse, new FutureCallback<Int32Value>() {
-                    @Override
-                    public void onSuccess(Int32Value result) {
-                        logger.info("Room #" + result.getValue() + " added successfully");
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        logger.error(t.getMessage());
-                        latch.countDown();
-                    }
-                }, Executors.newCachedThreadPool());
+                Futures.addCallback(roomResponse, new AddRoomCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             case "addDoctor":
                 latch = new CountDownLatch(1);
@@ -65,19 +56,7 @@ public class AdminClient {
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
                 ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(doctorData);
-                Futures.addCallback(doctorResponse, new FutureCallback<BoolValue>() {
-                    @Override
-                    public void onSuccess(BoolValue result) {
-                        logger.info(doctorData.getDoctorName().getName() + " (" + doctorData.getLevel() + ") added successfully");
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        logger.error(t.getMessage());
-                        latch.countDown();
-                    }
-                }, Executors.newCachedThreadPool());
+                Futures.addCallback(doctorResponse, new AddDoctorCallback(logger, latch, doctorData), Executors.newCachedThreadPool());
                 break;
             case "defineAvailability":
                 latch = new CountDownLatch(1);
@@ -86,19 +65,7 @@ public class AdminClient {
                         .setDoctorName(Doctor.newBuilder().setName(System.getProperty("doctor")).build())
                         .setAvailability(System.getProperty("availability"))
                         .build());
-                Futures.addCallback(availabilityResponse, new FutureCallback<BoolValue>() {
-                    @Override
-                    public void onSuccess(BoolValue result) {
-                        logger.info("Availability defined: " + result.getValue());
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        logger.error("Error defining availability: " + t.getMessage());
-                        latch.countDown();
-                    }
-                }, Executors.newCachedThreadPool());
+                Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             case "getDoctorAvailability":
                 latch = new CountDownLatch(1);
@@ -106,19 +73,7 @@ public class AdminClient {
                         .newBuilder()
                         .setName(System.getProperty("doctor"))
                         .build());
-                Futures.addCallback(doctorAvailabilityResponse, new FutureCallback<DoctorAvailability>() {
-                    @Override
-                    public void onSuccess(DoctorAvailability result) {
-                        logger.info("Doctor availability: " + result.getAvailability());
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        logger.error("Error getting doctor availability: " + t.getMessage());
-                        latch.countDown();
-                    }
-                }, Executors.newCachedThreadPool());
+                Futures.addCallback(doctorAvailabilityResponse, new GetDoctorAvailabilityCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             default:
                 break;
