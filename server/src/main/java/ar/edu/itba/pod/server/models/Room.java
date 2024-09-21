@@ -4,14 +4,14 @@ public class Room {
 
     private final int id;
     private boolean free;
-    private String doctorName;
-    private String patientName;
+    private Doctor doctor;
+    private Patient patient;
 
     public Room(int id) {
         this.id = id;
         this.free = true;
-        this.doctorName = "";
-        this.patientName = "";
+        this.doctor = null;
+        this.patient = null;
     }
 
     public int getId() {
@@ -22,23 +22,24 @@ public class Room {
         return free;
     }
 
-    public String getDoctorName() {
-        return doctorName;
+    public Doctor getDoctor() {
+        return doctor;
     }
 
-    public String getPatientName() {
-        return patientName;
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 
     public void setFree(boolean free) {
         this.free = free;
     }
 
-    public void setDoctorName(String doctorName) {
-        this.doctorName = doctorName;
-    }
-
-    public void setPatientName(String patientName) {
-        this.patientName = patientName;
-    }
 }

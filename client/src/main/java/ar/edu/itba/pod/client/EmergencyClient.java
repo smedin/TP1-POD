@@ -1,11 +1,14 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.callbacks.emergency.CareAllPatientsCallback;
 import ar.edu.itba.pod.client.callbacks.emergency.CarePatientCallback;
 import ar.edu.itba.pod.grpc.emergency.EmergencyServiceGrpc;
 import ar.edu.itba.pod.grpc.emergency.EndEmergencyData;
+import ar.edu.itba.pod.grpc.emergency.ListEmergencyData;
 import ar.edu.itba.pod.grpc.emergency.RoomNumber;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -30,21 +33,18 @@ public class EmergencyClient {
 
         switch (action) {
             case "carePatient":
-                logger.warn("Start");
                 latch = new CountDownLatch(1);
-                logger.warn("latch");
                 RoomNumber roomNumber = RoomNumber
                         .newBuilder()
                         .setRoomNumber(Integer.parseInt(System.getProperty("room")))
                         .build();
-                logger.warn("roomNumber");
                 ListenableFuture<EndEmergencyData> emergencyResponse = stub.startEmergencyByRoom(roomNumber);
-                logger.warn("emergencyResponse");
                 Futures.addCallback(emergencyResponse, new CarePatientCallback(logger, latch), Executors.newCachedThreadPool());
-                logger.warn("Futures");
                 break;
             case "careAllPatients":
                 latch = new CountDownLatch(1);
+                ListenableFuture<ListEmergencyData> allEmergenciesResponse = stub.startAllEmergencies(Empty.newBuilder().build());
+                Futures.addCallback(allEmergenciesResponse, new CareAllPatientsCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             case "dischargePatient":
                 latch = new CountDownLatch(1);

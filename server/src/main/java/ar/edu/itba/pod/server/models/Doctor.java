@@ -49,7 +49,7 @@ public class Doctor implements Comparable<Doctor> {
 
     @Override
     public int compareTo(Doctor o) {
-        int compare = Integer.compare(o.maxLevel, this.maxLevel);
+        int compare = Integer.compare(this.maxLevel, o.maxLevel);
         if (compare == 0) {
             return this.name.compareTo(o.name);
         }

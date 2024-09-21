@@ -12,6 +12,7 @@ import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 
+import java.util.List;
 import java.util.Optional;
 
 public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplBase {
@@ -23,10 +24,11 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
 
     @Override
     public void startEmergencyByRoom(RoomNumber request, StreamObserver<EndEmergencyData> responseObserver) {
-        System.out.println("Before startEmergencyByRoom");
         Room room = hospital.getRoomById(request.getRoomNumber());
-        System.out.println("After startEmergencyByRoom");
-        Optional<Pair<Patient, Doctor>> nextPatientDoctor = hospital.startEmergencyByRoom(room);
+        room = hospital.startEmergencyByRoom(room);
+
+        Patient nextPatient = room.getPatient();
+        Doctor nextDoctor = room.getDoctor();
 
 
         EndEmergencyData emergencyData = EndEmergencyData
@@ -35,13 +37,13 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                         .newBuilder()
                         .setDoctor(PersonData
                                 .newBuilder()
-                                .setName(nextPatientDoctor.get().getRight().getName())
-                                .setLevel(nextPatientDoctor.get().getRight().getMaxLevel())
+                                .setName(nextDoctor.getName())
+                                .setLevel(nextDoctor.getMaxLevel())
                                 .build())
                         .setPatient(PersonData
                                 .newBuilder()
-                                .setName(nextPatientDoctor.get().getLeft().getName())
-                                .setLevel(nextPatientDoctor.get().getLeft().getEmergencyLevel())
+                                .setName(nextPatient.getName())
+                                .setLevel(nextPatient.getEmergencyLevel())
                                 .build())
                         .build())
                 .setRoomNumber(RoomNumber
@@ -56,7 +58,44 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
 
     @Override
     public void startAllEmergencies(Empty request, StreamObserver<ListEmergencyData> responseObserver) {
+        List<Room> rooms = hospital.startAllEmergencies();
 
+        ListEmergencyData.Builder listEmergencyDataBuilder = ListEmergencyData.newBuilder();
+
+        for (Room room : rooms) {
+            Patient nextPatient = room.getPatient();
+            Doctor nextDoctor = room.getDoctor();
+
+            EmergencyData emergencyData = EmergencyData
+                    .newBuilder()
+                    .setRoomData(RoomData
+                            .newBuilder()
+                            .setDoctor(PersonData
+                                    .newBuilder()
+                                    .setName(nextDoctor.getName())
+                                    .setLevel(nextDoctor.getMaxLevel())
+                                    .build())
+                            .setPatient(PersonData
+                                    .newBuilder()
+                                    .setName(nextPatient.getName())
+                                    .setLevel(nextPatient.getEmergencyLevel())
+                                    .build())
+                            .build())
+                    .setRoomNumber(RoomOccupation
+                            .newBuilder()
+                            .setRoomNumber(RoomNumber
+                                    .newBuilder()
+                                    .setRoomNumber(room.getId())
+                                    .build())
+                            .setFree(room.isFree())
+                            .build())
+                    .build();
+
+            listEmergencyDataBuilder.addEmergencyData(emergencyData);
+        }
+
+        responseObserver.onNext(listEmergencyDataBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override

@@ -194,22 +194,36 @@ public class Hospital {
         }
     }
 
-    public Optional<Pair<Patient, Doctor>> startEmergencyByRoom(Room room) {
+    public Room startEmergencyByRoom(Room room) {
         lock.writeLock().lock();
         try {
             for (PatientArrival patientArrival : patientArrivals) {
                 Patient nextPatient = patientArrival.getPatient();
                 Doctor nextDoctor = getNextDoctor(nextPatient.getEmergencyLevel());
                 if (nextDoctor != null) {
-                    room.setDoctorName(nextDoctor.getName());
-                    room.setPatientName(nextPatient.getName());
+                    room.setDoctor(nextDoctor);
+                    room.setPatient(nextPatient);
                     room.setFree(false);
                     nextDoctor.setAvailability(Availability.ATTENDING);
                     patientArrivals.remove(patientArrival);
-                    return Optional.of(new Pair<>(nextPatient, nextDoctor));
+                    return room;
                 }
             }
-            return Optional.empty(); // TODO: exception
+            return room;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public List<Room> startAllEmergencies() {
+        lock.writeLock().lock();
+        try {
+            for (Room room : this.rooms) {
+                if (room.isFree()) {
+                    startEmergencyByRoom(room);
+                }
+            }
+            return rooms;
         } finally {
             lock.writeLock().unlock();
         }
