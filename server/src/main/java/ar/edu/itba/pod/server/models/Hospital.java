@@ -63,19 +63,19 @@ public class Hospital {
         }
     }
 
-    public boolean defineDoctorAvailability(String doctorName, String availability) {
+    public Doctor defineDoctorAvailability(String doctorName, Availability availability) {
         lock.writeLock().lock();
         try {
             Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
             if (maybeDoctor.isPresent()) {
                 Doctor doctor = maybeDoctor.get();
 
-                if (doctor.getAvailability().equals("attending")) {
+                if (doctor.getAvailability().equals(Availability.ATTENDING)) {
                     throw new DoctorIsAttendingException(doctorName);
                 }
 
                 doctor.setAvailability(availability);
-                return true;
+                return doctor;
             } else {
                 throw new DoctorNotFoundException(doctorName);
             }
@@ -84,13 +84,13 @@ public class Hospital {
         }
     }
 
-    public String getDoctorAvailability(String doctorName) {
+    public Availability getDoctorAvailability(String doctorName) {
         lock.readLock().lock();
         try {
             Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
             return maybeDoctor
                     .map(Doctor::getAvailability)
-                    .orElseThrow(() -> new IllegalArgumentException("Doctor not found: " + doctorName)); // TODO: check
+                    .orElseThrow(() -> new DoctorNotFoundException("Doctor " + doctorName + " not found: ")); // TODO: check
         } finally {
             lock.readLock().unlock();
         }

@@ -10,20 +10,20 @@ import "google/protobuf/empty.proto";
 service AdminService {
   rpc AddRoom(google.protobuf.Empty) returns (google.protobuf.Int32Value);
   rpc AddDoctor(DoctorData) returns (google.protobuf.BoolValue);
-  rpc DefineAvailability(DoctorAvailability) returns (google.protobuf.BoolValue);
-  rpc GetDoctorAvailability(Doctor) returns (DoctorAvailability);
+  rpc DefineAvailability(DoctorAvailability) returns (DoctorData);
+  rpc GetDoctorAvailability(DoctorName) returns (DoctorAvailability);
 }
 
 message DoctorData {
-  Doctor doctorName = 1;
+  DoctorName doctorName = 1;
   int32 level = 2;
 }
 
 message DoctorAvailability {
-  Doctor doctorName = 1;
+  DoctorName doctorName = 1;
   string availability = 2;
 }
 
-message Doctor {
+message DoctorName {
   string name = 1;
 }

@@ -5,9 +5,9 @@ import ar.edu.itba.pod.client.callbacks.admin.AddRoomCallback;
 import ar.edu.itba.pod.client.callbacks.admin.DefineAvailabilityCallback;
 import ar.edu.itba.pod.client.callbacks.admin.GetDoctorAvailabilityCallback;
 import ar.edu.itba.pod.grpc.admin.AdminServiceGrpc;
-import ar.edu.itba.pod.grpc.admin.Doctor;
 import ar.edu.itba.pod.grpc.admin.DoctorAvailability;
 import ar.edu.itba.pod.grpc.admin.DoctorData;
+import ar.edu.itba.pod.grpc.admin.DoctorName;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
@@ -47,7 +47,7 @@ public class AdminClient {
                 latch = new CountDownLatch(1);
                 DoctorData doctorData = DoctorData
                         .newBuilder()
-                        .setDoctorName(Doctor
+                        .setDoctorName(DoctorName
                                 .newBuilder()
                                 .setName(System.getProperty("doctor"))
                                 .build()
@@ -57,18 +57,19 @@ public class AdminClient {
                 ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(doctorData);
                 Futures.addCallback(doctorResponse, new AddDoctorCallback(logger, latch, doctorData), Executors.newCachedThreadPool());
                 break;
-            case "defineAvailability":
+            case "setDoctor":
                 latch = new CountDownLatch(1);
-                ListenableFuture<BoolValue> availabilityResponse = stub.defineAvailability(DoctorAvailability
+                DoctorAvailability doctorAvailability = DoctorAvailability
                         .newBuilder()
-                        .setDoctorName(Doctor.newBuilder().setName(System.getProperty("doctor")).build())
+                        .setDoctorName(DoctorName.newBuilder().setName(System.getProperty("doctor")).build())
                         .setAvailability(System.getProperty("availability"))
-                        .build());
-                Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch), Executors.newCachedThreadPool());
+                        .build();
+                ListenableFuture<DoctorData> availabilityResponse = stub.defineAvailability(doctorAvailability);
+                Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch, doctorAvailability), Executors.newCachedThreadPool());
                 break;
             case "getDoctorAvailability":
                 latch = new CountDownLatch(1);
-                ListenableFuture<DoctorAvailability> doctorAvailabilityResponse = stub.getDoctorAvailability(ar.edu.itba.pod.grpc.admin.Doctor
+                ListenableFuture<DoctorAvailability> doctorAvailabilityResponse = stub.getDoctorAvailability(DoctorName
                         .newBuilder()
                         .setName(System.getProperty("doctor"))
                         .build());
