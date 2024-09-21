@@ -2,7 +2,7 @@ package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.client.callbacks.waitingRoom.CheckPatientCallback;
 import ar.edu.itba.pod.client.callbacks.waitingRoom.UpdateLevelCallback;
-import ar.edu.itba.pod.grpc.waitingRoom.Patient;
+import ar.edu.itba.pod.grpc.waitingRoom.PatientName;
 import ar.edu.itba.pod.grpc.waitingRoom.PatientData;
 import ar.edu.itba.pod.grpc.waitingRoom.WaitingRoomServiceGrpc;
 import ar.edu.itba.pod.grpc.waitingRoom.TimeData;
@@ -36,7 +36,7 @@ public class WaitingRoomClient {
                 latch = new CountDownLatch(1);
                 PatientData patientData = PatientData
                         .newBuilder()
-                        .setPatientName(Patient
+                        .setPatientName(PatientName
                                 .newBuilder()
                                 .setName(System.getProperty("patient"))
                                 .build())
@@ -49,7 +49,7 @@ public class WaitingRoomClient {
                 latch = new CountDownLatch(1);
                 PatientData updatedPatientData = PatientData
                         .newBuilder()
-                        .setPatientName(Patient
+                        .setPatientName(PatientName
                                 .newBuilder()
                                 .setName(System.getProperty("patient"))
                                 .build())
@@ -60,7 +60,7 @@ public class WaitingRoomClient {
                 break;
             case "checkPatient":
                 latch = new CountDownLatch(1);
-                Patient patient = Patient
+                PatientName patient = PatientName
                         .newBuilder()
                         .setName(System.getProperty("patient"))
                         .build();

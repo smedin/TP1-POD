@@ -9,15 +9,15 @@ import "google/protobuf/wrappers.proto";
 service WaitingRoomService {
   rpc RegisterPatient(PatientData) returns (google.protobuf.BoolValue);
   rpc UpdateEmergencyLevel(PatientData) returns (google.protobuf.BoolValue);
-  rpc WaitingTime(Patient) returns (TimeData);
+  rpc WaitingTime(PatientName) returns (TimeData);
 }
 
 message PatientData {
-  Patient patientName = 1;
+  PatientName patientName = 1;
   int32 level = 2;
 }
 
-message Patient {
+message PatientName {
   string name = 1;
 }
 
