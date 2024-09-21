@@ -6,12 +6,12 @@ public class Doctor {
 
     private final String name;
     private final int maxLevel;
-    private String availability;
+    private Availability availability;
 
     public Doctor(String name, int maxLevel) {
         this.name = name;
         this.maxLevel = maxLevel;
-        this.availability = "unavailable";
+        this.availability = Availability.UNAVAILABLE;
     }
 
     public String getName() {
@@ -22,11 +22,11 @@ public class Doctor {
         return maxLevel;
     }
 
-    public String getAvailability() {
+    public Availability getAvailability() {
         return availability;
     }
 
-    public void setAvailability(String availability) {
+    public void setAvailability(Availability availability) {
         this.availability = availability;
     }
 
