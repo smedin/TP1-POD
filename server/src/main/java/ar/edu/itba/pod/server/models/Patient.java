@@ -35,7 +35,7 @@ public class Patient implements Comparable<Patient> {
 
     @Override
     public int compareTo(Patient o) {
-        int compare = Integer.compare(this.emergencyLevel, o.emergencyLevel);
+        int compare = Integer.compare(o.emergencyLevel, this.emergencyLevel);
         if (compare == 0) {
             return this.name.compareTo(o.name);
         }
