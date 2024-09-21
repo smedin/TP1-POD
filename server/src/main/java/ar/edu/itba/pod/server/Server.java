@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.server;
 
+import ar.edu.itba.pod.server.servants.EmergencyServant;
 import ar.edu.itba.pod.server.utils.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.servants.AdminServant;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class Server {
-    private static Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public static void main(String[] args) throws InterruptedException, IOException {
         logger.info(" Server Starting ...");
@@ -21,6 +22,7 @@ public class Server {
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new AdminServant(hospital))
                 .addService(new WaitingRoomServant(hospital))
+                .addService(new EmergencyServant(hospital))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();

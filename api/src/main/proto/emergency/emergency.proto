@@ -8,28 +8,40 @@ import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 service EmergencyService {
-  rpc StartEmergencyByRoom(Room) returns (EmergencyData);
-  rpc StartAllEmergencies(google.protobuf.Empty) returns (stream EmergencyData);
+  rpc StartEmergencyByRoom(RoomNumber) returns (EndEmergencyData);
+  rpc StartAllEmergencies(google.protobuf.Empty) returns (ListEmergencyData);
   rpc EndEmergency(EndEmergencyData) returns (google.protobuf.BoolValue);
 }
 
-message Room {
+message RoomNumber {
   int32 roomNumber = 1;
 }
 
+message ListEmergencyData {
+  repeated EmergencyData emergencyData = 1;
+}
+
 message EndEmergencyData {
-  string patientName = 1;
-  string doctorName = 2;
-  Room room = 3;
+  RoomData roomData = 1;
+  RoomNumber roomNumber = 2;
 }
 
 message EmergencyData {
-  string patientName = 1;
-  string doctorName = 2;
-  RoomData room = 3;
+  RoomData roomData = 1;
+  RoomOccupation roomNumber = 2;
+}
+
+message PersonData {
+  string name = 1;
+  int32 level = 2;
 }
 
 message RoomData {
-  Room room = 1;
+  PersonData patient = 1;
+  PersonData doctor = 2;
+}
+
+message RoomOccupation {
+  RoomNumber roomNumber = 1;
   bool free = 2;
 }

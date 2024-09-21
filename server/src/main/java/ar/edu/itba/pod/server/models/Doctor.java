@@ -2,7 +2,7 @@ package ar.edu.itba.pod.server.models;
 
 import java.util.Objects;
 
-public class Doctor {
+public class Doctor implements Comparable<Doctor> {
 
     private final String name;
     private final int maxLevel;
@@ -30,6 +30,10 @@ public class Doctor {
         this.availability = availability;
     }
 
+    public boolean isAvailable() {
+        return availability == Availability.AVAILABLE;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,7 +44,15 @@ public class Doctor {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name); // Usa solo el nombre para el hash
+        return Objects.hash(name);
     }
 
+    @Override
+    public int compareTo(Doctor o) {
+        int compare = Integer.compare(o.maxLevel, this.maxLevel);
+        if (compare == 0) {
+            return this.name.compareTo(o.name);
+        }
+        return compare;
+    }
 }

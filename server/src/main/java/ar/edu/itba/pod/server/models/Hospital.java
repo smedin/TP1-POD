@@ -4,6 +4,7 @@ import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
 import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
 import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
 import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+import ar.edu.itba.pod.server.utils.Pair;
 import ar.edu.itba.pod.server.utils.PatientArrival;
 
 import java.util.*;
@@ -20,7 +21,7 @@ public class Hospital {
 
     public Hospital() {
         this.rooms = new ArrayList<>();
-        this.doctors = new HashSet<>(); // TODO: concurrent set
+        this.doctors = new TreeSet<>(); // TODO: concurrent set
         this.patientArrivals = new LinkedList<>();
         this.lock = new ReentrantReadWriteLock(true);
         this.patientCount = 0;
@@ -162,6 +163,55 @@ public class Hospital {
             return patientArrivals.indexOf(new PatientArrival(0, patient));
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    public Doctor getNextDoctor(int patientLevel) {
+        lock.writeLock().lock();
+        try {
+            for (Doctor doctor : doctors) {
+                if (doctor.isAvailable() && doctor.getMaxLevel() >= patientLevel) {
+                    return doctor;
+                }
+            }
+            return null;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public Room getRoomById(int roomNumber) {
+        lock.readLock().lock();
+        try {
+            // TODO: exception -> if it doesnt exist or if it is not free
+            Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElse(null);
+            if (room == null || !room.isFree()) {
+                return null;
+            }
+            return room;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public Optional<Pair<Patient, Doctor>> startEmergencyByRoom(Room room) {
+        lock.writeLock().lock();
+        try {
+            for (PatientArrival patientArrival : patientArrivals) {
+                Patient nextPatient = patientArrival.getPatient();
+                Doctor nextDoctor = getNextDoctor(nextPatient.getEmergencyLevel());
+                if (nextDoctor != null) {
+                    room.setDoctorName(nextDoctor.getName());
+                    room.setPatientName(nextPatient.getName());
+                    room.setFree(false);
+                    nextDoctor.setAvailability(Availability.ATTENDING);
+                    patientArrivals.remove(patientArrival);
+                    return Optional.of(new Pair<>(nextPatient, nextDoctor));
+                }
+            }
+            return Optional.empty(); // TODO: exception
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 }
