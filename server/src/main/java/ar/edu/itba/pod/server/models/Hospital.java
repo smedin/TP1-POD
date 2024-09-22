@@ -240,4 +240,25 @@ public class Hospital {
             lock.writeLock().unlock();
         }
     }
+
+    public void endEmergency(Doctor doctor, int roomNumber) {
+        try {
+            lock.writeLock().lock();
+            doctors.stream().filter(r -> Objects.equals(r.getName(), doctor.getName())).findFirst().orElseThrow(() -> new DoctorNotFoundException(doctor.getName()));
+            Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElseThrow(() -> new RoomNotFoundException(roomNumber));
+            if (room.isFree()) {
+                return;
+            }
+            if (!Objects.equals(room.getDoctor().getName(), doctor.getName())) {
+                throw new DoctorNotInRoomException(doctor.getName(), roomNumber);
+            }
+            room.setFree(true);
+            room.setDoctor(null);
+            room.setPatient(null);
+
+        } finally {
+            lock.writeLock().unlock();
+        }
+
+    }
 }

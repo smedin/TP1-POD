@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 service EmergencyService {
   rpc StartEmergencyByRoom(RoomNumber) returns (EndEmergencyData);
   rpc StartAllEmergencies(google.protobuf.Empty) returns (ListEmergencyData);
-  rpc EndEmergency(EndEmergencyData) returns (google.protobuf.BoolValue);
+  rpc EndEmergency(EndEmergencyData) returns (EndEmergencyData);
 }
 
 message RoomNumber {

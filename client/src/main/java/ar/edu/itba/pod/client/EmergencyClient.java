@@ -2,10 +2,8 @@ package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.client.callbacks.emergency.CareAllPatientsCallback;
 import ar.edu.itba.pod.client.callbacks.emergency.CarePatientCallback;
-import ar.edu.itba.pod.grpc.emergency.EmergencyServiceGrpc;
-import ar.edu.itba.pod.grpc.emergency.EndEmergencyData;
-import ar.edu.itba.pod.grpc.emergency.ListEmergencyData;
-import ar.edu.itba.pod.grpc.emergency.RoomNumber;
+import ar.edu.itba.pod.client.callbacks.emergency.DischargeEmergencyCallback;
+import ar.edu.itba.pod.grpc.emergency.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Empty;
@@ -32,7 +30,7 @@ public class EmergencyClient {
         EmergencyServiceGrpc.EmergencyServiceFutureStub stub = EmergencyServiceGrpc.newFutureStub(channel);
 
         switch (action) {
-            case "carePatient":
+            case "carePatient" -> {
                 latch = new CountDownLatch(1);
                 RoomNumber roomNumber = RoomNumber
                         .newBuilder()
@@ -40,17 +38,29 @@ public class EmergencyClient {
                         .build();
                 ListenableFuture<EndEmergencyData> emergencyResponse = stub.startEmergencyByRoom(roomNumber);
                 Futures.addCallback(emergencyResponse, new CarePatientCallback(logger, latch), Executors.newCachedThreadPool());
-                break;
-            case "careAllPatients":
+            }
+            case "careAllPatients" ->{
                 latch = new CountDownLatch(1);
                 ListenableFuture<ListEmergencyData> allEmergenciesResponse = stub.startAllEmergencies(Empty.newBuilder().build());
                 Futures.addCallback(allEmergenciesResponse, new CareAllPatientsCallback(logger, latch), Executors.newCachedThreadPool());
-                break;
-            case "dischargePatient":
+            }
+
+            case "dischargePatient" -> {
                 latch = new CountDownLatch(1);
-                break;
-            default:
-                break;
+                RoomNumber roomNumber = RoomNumber
+                        .newBuilder()
+                        .setRoomNumber(Integer.parseInt(System.getProperty("room")))
+                        .build();
+                RoomData roomData = RoomData
+                        .newBuilder()
+                        .setDoctor(PersonData.newBuilder().setName(System.getProperty("doctor")).build()).setPatient(PersonData.newBuilder().setName(System.getProperty("patient")).build()).build();
+                EndEmergencyData emergencyData = EndEmergencyData.newBuilder().setRoomNumber(roomNumber).setRoomData(roomData).build();
+                ListenableFuture<EndEmergencyData> dischargeResponse = stub.endEmergency(emergencyData);
+                Futures.addCallback(dischargeResponse, new DischargeEmergencyCallback(logger, latch), Executors.newCachedThreadPool());
+            }
+            default -> {
+                System.exit(1);
+            }
         }
         try {
             latch.await();
