@@ -183,7 +183,10 @@ public class Hospital {
         try {
             // TODO: exception -> if it doesnt exist or if it is not free
             Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElse(null);
-            if (room == null || !room.isFree()) {
+            if (room == null){
+                throw new RoomNotFoundException(roomNumber);
+            }
+            if (!room.isFree()) {
                 return null;
             }
             return room;
