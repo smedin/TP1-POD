@@ -1,10 +1,7 @@
 package ar.edu.itba.pod.server.servants;
 
 import ar.edu.itba.pod.grpc.admin.*;
-import ar.edu.itba.pod.server.models.Availability;
-import ar.edu.itba.pod.server.models.Doctor;
-import ar.edu.itba.pod.server.models.Hospital;
-import ar.edu.itba.pod.server.models.Room;
+import ar.edu.itba.pod.server.models.*;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
@@ -12,11 +9,13 @@ import io.grpc.stub.StreamObserver;
 
 public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     private final Hospital hospital;
+    private final NotificationManager notificationManager;
     private int roomCounter = 1;
 
 
-    public AdminServant(Hospital hospital) {
+    public AdminServant(Hospital hospital, NotificationManager notificationManager) {
         this.hospital = hospital;
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -42,9 +41,9 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     @Override
     public void defineAvailability(DoctorAvailability request, StreamObserver<DoctorData> response) {
         String doctorName = request.getDoctorName().getName();
-        String availability = request.getAvailability(); // TODO: change to enum
+        Availability availability = Availability.valueOf(request.getAvailability().toUpperCase());
 
-        Doctor doctor = hospital.defineDoctorAvailability(doctorName, Availability.valueOf(availability.toUpperCase())); // TODO: make defineAvailability inside Hospital syncronized (use writeLock)
+        Doctor doctor = hospital.defineDoctorAvailability(doctorName, availability); // TODO: make defineAvailability inside Hospital syncronized (use writeLock)
 
         response.onNext(DoctorData
                 .newBuilder()
@@ -52,6 +51,8 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
                 .setLevel(doctor.getMaxLevel())
                 .build());
         response.onCompleted();
+
+        notificationManager.notifyAvailabilityDefinition(doctor, availability);
     }
 
     @Override
