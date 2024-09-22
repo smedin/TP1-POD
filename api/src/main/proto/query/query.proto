@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package query;
+
+option java_package = "ar.edu.itba.pod.grpc.query";
+option java_multiple_files = true;
+import "google/protobuf/wrappers.proto";
+
+service QueryService {
+  rpc getRooms(OutPath) returns (RoomList);
+  rpc getWaitingRoom(OutPath) returns (PatientList);
+  rpc getFinalizedEmergencies(FinalizedInput) returns (FinalizedEmergencyList);
+}
+
+message OutPath {
+  string path = 1;
+}
+
+message RoomList {
+  repeated RoomData roomData = 1;
+}
+
+message RoomData {
+  int32 roomNumber = 1;
+  bool free = 2;
+  PersonData patient = 3;
+  PersonData doctor = 4;
+}
+
+message PersonData {
+  string name = 1;
+  int32 level = 2;
+}
+
+message PatientList {
+  repeated PersonData patientData = 1;
+}
+
+message FinalizedInput {
+  OutPath path = 1;
+  int32 roomNumber = 2;
+}
+
+message FinalizedEmergencyList {
+  repeated FinalizedEmergency finalizedEmergency = 1;
+}
+
+message FinalizedEmergency {
+  int32 roomNumber = 1;
+  PersonData patient = 2;
+  PersonData doctor = 3;
+}
