@@ -1,9 +1,6 @@
 package ar.edu.itba.pod.server.utils;
 
-import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
-import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
-import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
-import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+import ar.edu.itba.pod.server.exceptions.*;
 import com.google.rpc.Code;
 import io.grpc.*;
 import io.grpc.protobuf.StatusProto;
@@ -46,7 +43,8 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
                 DoctorAlreadyExistsException.class, ALREADY_EXISTS,
                 InvalidLevelException.class, INVALID_ARGUMENT,
                 DoctorNotFoundException.class, NOT_FOUND,
-                DoctorIsAttendingException.class, FAILED_PRECONDITION
+                DoctorIsAttendingException.class, FAILED_PRECONDITION,
+                UnableToStartEmergencyException.class, FAILED_PRECONDITION
         );
 
         private void handleException(RuntimeException exception, ServerCall<T, R> serverCall, Metadata headers) {

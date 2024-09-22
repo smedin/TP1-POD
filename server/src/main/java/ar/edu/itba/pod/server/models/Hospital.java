@@ -1,9 +1,6 @@
 package ar.edu.itba.pod.server.models;
 
-import ar.edu.itba.pod.server.exceptions.DoctorAlreadyExistsException;
-import ar.edu.itba.pod.server.exceptions.DoctorIsAttendingException;
-import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
-import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+import ar.edu.itba.pod.server.exceptions.*;
 import ar.edu.itba.pod.server.utils.Pair;
 import ar.edu.itba.pod.server.utils.PatientArrival;
 
@@ -122,6 +119,7 @@ public class Hospital {
             PatientArrival patientWithOrder = new PatientArrival(patientCount++, patient);
             patientArrivals.add(patientWithOrder);
             Collections.sort(patientArrivals);
+
             return true;
         } finally {
             lock.writeLock().unlock();
@@ -209,7 +207,7 @@ public class Hospital {
                     return room;
                 }
             }
-            return room;
+            throw new UnableToStartEmergencyException(room.getId());
         } finally {
             lock.writeLock().unlock();
         }
