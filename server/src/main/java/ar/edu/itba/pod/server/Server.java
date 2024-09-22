@@ -1,6 +1,8 @@
 package ar.edu.itba.pod.server;
 
+import ar.edu.itba.pod.server.models.NotificationManager;
 import ar.edu.itba.pod.server.servants.EmergencyServant;
+import ar.edu.itba.pod.server.servants.NotificationServant;
 import ar.edu.itba.pod.server.utils.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.servants.AdminServant;
@@ -19,10 +21,12 @@ public class Server {
 
         int port = 50051;
         Hospital hospital = new Hospital();
+        NotificationManager notificationManager = new NotificationManager();
         io.grpc.Server server = ServerBuilder.forPort(port)
-                .addService(new AdminServant(hospital))
+                .addService(new AdminServant(hospital, notificationManager))
                 .addService(new WaitingRoomServant(hospital))
                 .addService(new EmergencyServant(hospital))
+                .addService(new NotificationServant(hospital, notificationManager))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();

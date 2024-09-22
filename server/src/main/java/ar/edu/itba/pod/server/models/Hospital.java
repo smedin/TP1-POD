@@ -88,7 +88,7 @@ public class Hospital {
             Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
             return maybeDoctor
                     .map(Doctor::getAvailability)
-                    .orElseThrow(() -> new DoctorNotFoundException("Doctor " + doctorName + " not found: ")); // TODO: check
+                    .orElseThrow(() -> new DoctorNotFoundException(doctorName)); // TODO: check
         } finally {
             lock.readLock().unlock();
         }

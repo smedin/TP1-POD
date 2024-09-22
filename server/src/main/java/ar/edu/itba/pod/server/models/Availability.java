@@ -3,7 +3,8 @@ package ar.edu.itba.pod.server.models;
 public enum Availability {
     AVAILABLE("available"),
     UNAVAILABLE("unavailable"),
-    ATTENDING("attending");
+    ATTENDING("attending"),
+    IDLE("idle");
 
     private final String state;
 

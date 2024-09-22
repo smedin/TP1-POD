@@ -27,8 +27,8 @@ public class AdminClient {
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {
-//        logger.info("TP1-POD Client Starting ...");
-//        logger.info("grpc-com-patterns Client Starting ...");
+        logger.info("TP1-POD Client Starting ...");
+        logger.info("grpc-com-patterns Client Starting ...");
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
                 .build();
@@ -76,10 +76,11 @@ public class AdminClient {
                 Futures.addCallback(doctorAvailabilityResponse, new GetDoctorAvailabilityCallback(logger, latch), Executors.newCachedThreadPool());
                 break;
             default:
-                break;
+                System.exit(1);
         }
 
         try {
+            logger.info("Waiting for response");
             latch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
