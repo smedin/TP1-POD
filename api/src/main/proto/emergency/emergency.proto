@@ -44,4 +44,5 @@ message RoomData {
 message RoomOccupation {
   RoomNumber roomNumber = 1;
   bool free = 2;
+  bool newOccupation = 3;
 }

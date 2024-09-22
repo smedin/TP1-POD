@@ -34,7 +34,6 @@ public class Hospital {
     }
 
     public void addRoom(Room room) {
-
         lock.writeLock().lock();
         try {
             rooms.add(room);
@@ -182,10 +181,7 @@ public class Hospital {
         lock.readLock().lock();
         try {
             // TODO: exception -> if it doesnt exist or if it is not free
-            Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElse(null);
-            if (room == null){
-                throw new RoomNotFoundException(roomNumber);
-            }
+            Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElseThrow(() -> new RoomNotFoundException(roomNumber));
             if (!room.isFree()) {
                 return null;
             }
@@ -205,12 +201,14 @@ public class Hospital {
                     room.setDoctor(nextDoctor);
                     room.setPatient(nextPatient);
                     room.setFree(false);
+                    room.setNewOccupation(true);
                     nextDoctor.setAvailability(Availability.ATTENDING);
                     patientArrivals.remove(patientArrival);
                     return room;
                 }
             }
-            throw new UnableToStartEmergencyException(room.getId());
+            //throw new UnableToStartEmergencyException(room.getId());
+            return room;
         } finally {
             lock.writeLock().unlock();
         }
@@ -225,6 +223,19 @@ public class Hospital {
                 }
             }
             return rooms;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public void cleanOccupations() {
+        lock.writeLock().lock();
+        try {
+            for (Room room : rooms) {
+                if (room.isNewOccupation()) {
+                    room.setNewOccupation(false);
+                }
+            }
         } finally {
             lock.writeLock().unlock();
         }

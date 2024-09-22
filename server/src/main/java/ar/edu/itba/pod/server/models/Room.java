@@ -6,12 +6,14 @@ public class Room {
     private boolean free;
     private Doctor doctor;
     private Patient patient;
+    private boolean newOccupation;
 
     public Room(int id) {
         this.id = id;
         this.free = true;
         this.doctor = null;
         this.patient = null;
+        this.newOccupation = false;
     }
 
     public int getId() {
@@ -20,6 +22,10 @@ public class Room {
 
     public boolean isFree() {
         return free;
+    }
+
+    public void setFree(boolean free) {
+        this.free = free;
     }
 
     public Doctor getDoctor() {
@@ -38,8 +44,11 @@ public class Room {
         this.patient = patient;
     }
 
-    public void setFree(boolean free) {
-        this.free = free;
+    public boolean isNewOccupation() {
+        return newOccupation;
     }
 
+    public void setNewOccupation(boolean newOccupation) {
+        this.newOccupation = newOccupation;
+    }
 }

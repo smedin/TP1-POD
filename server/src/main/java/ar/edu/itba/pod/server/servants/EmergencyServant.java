@@ -27,46 +27,21 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         Room room = hospital.getRoomById(request.getRoomNumber());
         room = hospital.startEmergencyByRoom(room);
 
-        Patient nextPatient = room.getPatient();
-        Doctor nextDoctor = room.getDoctor();
+        EndEmergencyData emergencyData;
 
-
-        EndEmergencyData emergencyData = EndEmergencyData
-                .newBuilder()
-                .setRoomData(RoomData
-                        .newBuilder()
-                        .setDoctor(PersonData
-                                .newBuilder()
-                                .setName(nextDoctor.getName())
-                                .setLevel(nextDoctor.getMaxLevel())
-                                .build())
-                        .setPatient(PersonData
-                                .newBuilder()
-                                .setName(nextPatient.getName())
-                                .setLevel(nextPatient.getEmergencyLevel())
-                                .build())
-                        .build())
-                .setRoomNumber(RoomNumber
-                        .newBuilder()
-                        .setRoomNumber(room.getId())
-                        .build())
-                .build();
-
-        responseObserver.onNext(emergencyData);
-        responseObserver.onCompleted();
-    }
-
-    @Override
-    public void startAllEmergencies(Empty request, StreamObserver<ListEmergencyData> responseObserver) {
-        List<Room> rooms = hospital.startAllEmergencies();
-
-        ListEmergencyData.Builder listEmergencyDataBuilder = ListEmergencyData.newBuilder();
-
-        for (Room room : rooms) {
+        if (room.isFree()) {
+            emergencyData = EndEmergencyData
+                    .newBuilder()
+                    .setRoomNumber(RoomNumber
+                            .newBuilder()
+                            .setRoomNumber(room.getId())
+                            .build())
+                    .build();
+        } else {
             Patient nextPatient = room.getPatient();
             Doctor nextDoctor = room.getDoctor();
 
-            EmergencyData emergencyData = EmergencyData
+            emergencyData = EndEmergencyData
                     .newBuilder()
                     .setRoomData(RoomData
                             .newBuilder()
@@ -81,18 +56,76 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                                     .setLevel(nextPatient.getEmergencyLevel())
                                     .build())
                             .build())
-                    .setRoomNumber(RoomOccupation
+                    .setRoomNumber(RoomNumber
                             .newBuilder()
-                            .setRoomNumber(RoomNumber
-                                    .newBuilder()
-                                    .setRoomNumber(room.getId())
-                                    .build())
-                            .setFree(room.isFree())
+                            .setRoomNumber(room.getId())
                             .build())
                     .build();
+        }
+
+        responseObserver.onNext(emergencyData);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void startAllEmergencies(Empty request, StreamObserver<ListEmergencyData> responseObserver) {
+        List<Room> rooms = hospital.startAllEmergencies();
+
+        ListEmergencyData.Builder listEmergencyDataBuilder = ListEmergencyData.newBuilder();
+
+        for (Room room : rooms) {
+            EmergencyData emergencyData;
+            if (room.isFree()) {
+                emergencyData = EmergencyData
+                        .newBuilder()
+                        .setRoomData(RoomData
+                                .newBuilder()
+                                .build())
+                        .setRoomNumber(RoomOccupation
+                                .newBuilder()
+                                .setRoomNumber(RoomNumber
+                                        .newBuilder()
+                                        .setRoomNumber(room.getId())
+                                        .build())
+                                .setFree(room.isFree())
+                                .setNewOccupation(room.isNewOccupation())
+                                .build())
+                        .build();
+            } else {
+                Patient nextPatient = room.getPatient();
+                Doctor nextDoctor = room.getDoctor();
+
+                emergencyData = EmergencyData
+                        .newBuilder()
+                        .setRoomData(RoomData
+                                .newBuilder()
+                                .setDoctor(PersonData
+                                        .newBuilder()
+                                        .setName(nextDoctor.getName())
+                                        .setLevel(nextDoctor.getMaxLevel())
+                                        .build())
+                                .setPatient(PersonData
+                                        .newBuilder()
+                                        .setName(nextPatient.getName())
+                                        .setLevel(nextPatient.getEmergencyLevel())
+                                        .build())
+                                .build())
+                        .setRoomNumber(RoomOccupation
+                                .newBuilder()
+                                .setRoomNumber(RoomNumber
+                                        .newBuilder()
+                                        .setRoomNumber(room.getId())
+                                        .build())
+                                .setFree(room.isFree())
+                                .setNewOccupation(room.isNewOccupation())
+                                .build())
+                        .build();
+            }
 
             listEmergencyDataBuilder.addEmergencyData(emergencyData);
         }
+
+        hospital.cleanOccupations();
 
         responseObserver.onNext(listEmergencyDataBuilder.build());
         responseObserver.onCompleted();

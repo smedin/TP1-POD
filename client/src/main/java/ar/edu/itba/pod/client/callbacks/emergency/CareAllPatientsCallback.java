@@ -15,7 +15,7 @@ public class CareAllPatientsCallback extends AbstractFutureCallback<ListEmergenc
     @Override
     public void onSuccess(ListEmergencyData listEmergencyData) {
         for (EmergencyData emergencyData : listEmergencyData.getEmergencyDataList()) {
-            if (!emergencyData.getRoomData().isInitialized()) {
+            if (!emergencyData.getRoomNumber().getNewOccupation()) {
                 this.getLogger().info("Room #{} remains {}",
                         emergencyData.getRoomNumber().getRoomNumber().getRoomNumber(),
                         emergencyData.getRoomNumber().getFree() ? "Free" : "Occupied");
