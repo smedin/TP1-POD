@@ -1,12 +1,9 @@
 package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.server.models.NotificationManager;
-import ar.edu.itba.pod.server.servants.EmergencyServant;
-import ar.edu.itba.pod.server.servants.NotificationServant;
+import ar.edu.itba.pod.server.servants.*;
 import ar.edu.itba.pod.server.utils.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.server.models.Hospital;
-import ar.edu.itba.pod.server.servants.AdminServant;
-import ar.edu.itba.pod.server.servants.WaitingRoomServant;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +24,7 @@ public class Server {
                 .addService(new WaitingRoomServant(hospital))
                 .addService(new EmergencyServant(hospital))
                 .addService(new NotificationServant(hospital, notificationManager))
+                .addService(new QueryServant(hospital))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
