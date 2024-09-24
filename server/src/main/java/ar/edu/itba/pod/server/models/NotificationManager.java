@@ -43,7 +43,6 @@ public class NotificationManager {
 
     public void notify(String doctorName, String message) {
         notificationLock.lock();
-        System.out.println(registeredDoctors);
         try {
             if (registeredDoctors.containsKey(doctorName)) {
                 registeredDoctors.get(doctorName).onNext(Notification.newBuilder().setMessage(message).build());
