@@ -20,9 +20,9 @@ public class Server {
         Hospital hospital = new Hospital();
         NotificationManager notificationManager = new NotificationManager();
         io.grpc.Server server = ServerBuilder.forPort(port)
+                .addService(new EmergencyServant(hospital, notificationManager))
                 .addService(new AdminServant(hospital, notificationManager))
                 .addService(new WaitingRoomServant(hospital))
-                .addService(new EmergencyServant(hospital))
                 .addService(new NotificationServant(hospital, notificationManager))
                 .addService(new QueryServant(hospital))
                 .intercept(new GlobalExceptionHandlerInterceptor())

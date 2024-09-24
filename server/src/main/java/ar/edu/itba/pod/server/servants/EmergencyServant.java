@@ -4,10 +4,7 @@ import ar.edu.itba.pod.grpc.admin.DoctorData;
 import ar.edu.itba.pod.grpc.emergency.*;
 import ar.edu.itba.pod.grpc.waitingRoom.PatientData;
 import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
-import ar.edu.itba.pod.server.models.Doctor;
-import ar.edu.itba.pod.server.models.Hospital;
-import ar.edu.itba.pod.server.models.Patient;
-import ar.edu.itba.pod.server.models.Room;
+import ar.edu.itba.pod.server.models.*;
 import ar.edu.itba.pod.server.utils.Pair;
 import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
@@ -18,14 +15,17 @@ import java.util.Optional;
 
 public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplBase {
     private final Hospital hospital;
+    private final NotificationManager notificationManager;
 
-    public EmergencyServant(Hospital hospital) {
+    public EmergencyServant(Hospital hospital, NotificationManager notificationManager) {
         this.hospital = hospital;
+        this.notificationManager = notificationManager;
     }
 
     @Override
     public void startEmergencyByRoom(RoomNumber request, StreamObserver<EndEmergencyData> responseObserver) {
         Room room = hospital.getRoomById(request.getRoomNumber());
+        System.out.println("Antes de empezar la emergencia");
         room = hospital.startEmergencyByRoom(room);
         EndEmergencyData emergencyData;
 
@@ -63,8 +63,14 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                     .build();
         }
 
+        System.out.println("Antes del oncomplete");
+
         responseObserver.onNext(emergencyData);
         responseObserver.onCompleted();
+
+        System.out.println("Pase el oncomplete");
+
+        notificationManager.notifyEmergencyTaken(room);
     }
 
     @Override
@@ -131,7 +137,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         responseObserver.onCompleted();
     }
 
-    @Override
+        @Override
     public void endEmergency(EndEmergencyData request, StreamObserver<EndEmergencyData> responseObserver) {
         String doctorName = request.getRoomData().getDoctor().getName();
         String patientName = request.getRoomData().getPatient().getName();

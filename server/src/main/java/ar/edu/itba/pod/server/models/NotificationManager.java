@@ -43,8 +43,11 @@ public class NotificationManager {
 
     public void notify(String doctorName, String message) {
         notificationLock.lock();
+        System.out.println("Estoy en la primer linea de notify function");
+        System.out.println(registeredDoctors);
         try {
             if (registeredDoctors.containsKey(doctorName)) {
+                System.out.println("notificacion para " + doctorName + ": " + message);
                 registeredDoctors.get(doctorName).onNext(Notification.newBuilder().setMessage(message).build());
             }
         } finally {
@@ -66,13 +69,16 @@ public class NotificationManager {
         notify(doctorName, message);
     }
 
-    public void notifyEmergencyTaken(Patient patient, Doctor doctor, Room room) {
+    public void notifyEmergencyTaken(Room room) {
+        System.out.println("Entre al notifyEmergencyTaken");
+        Doctor doctor = room.getDoctor();
         String doctorName = doctor.getName();
-        int doctorLevel = doctor.getMaxLevel();
+        int doctorLevel = room.getDoctor().getMaxLevel();
+        Patient patient = room.getPatient();
         String patientName = patient.getName();
         int patientLevel = patient.getEmergencyLevel();
         int roomNumber = room.getId();
-        String message = String.format("%s (%d) and %s (%d) are now in Room #%d", patientName, patientLevel, doctorName, doctorLevel, roomNumber);
+        String message = String.format("Patient %s (%d) and Doctor %s (%d) are now in Room #%d", patientName, patientLevel, doctorName, doctorLevel, roomNumber);
         notify(doctorName, message);
     }
 
