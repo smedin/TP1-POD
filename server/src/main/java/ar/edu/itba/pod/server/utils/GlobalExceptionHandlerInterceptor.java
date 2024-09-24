@@ -41,12 +41,15 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
 
         private final Map<Class<? extends Throwable>, Code> errorCodesByException = Map.of(
                 DoctorAlreadyExistsException.class, ALREADY_EXISTS,
+                DoctorIsAttendingException.class, FAILED_PRECONDITION,
                 InvalidLevelException.class, INVALID_ARGUMENT,
                 DoctorNotFoundException.class, NOT_FOUND,
                 RoomNotFoundException.class, NOT_FOUND,
-                DoctorIsAttendingException.class, FAILED_PRECONDITION,
                 UnableToStartEmergencyException.class, FAILED_PRECONDITION,
-                RoomNotFreeException.class, FAILED_PRECONDITION
+                RoomNotFreeException.class, FAILED_PRECONDITION,
+                RoomFreeException.class, FAILED_PRECONDITION,
+                PatientNotFoundException.class, NOT_FOUND,
+                DoctorNotInRoomException.class, FAILED_PRECONDITION
         );
 
         private void handleException(RuntimeException exception, ServerCall<T, R> serverCall, Metadata headers) {

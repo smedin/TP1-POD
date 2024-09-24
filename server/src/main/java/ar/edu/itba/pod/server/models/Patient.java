@@ -37,4 +37,12 @@ public class Patient implements Comparable<Patient> {
     public int compareTo(Patient o) {
         return Integer.compare(o.emergencyLevel, this.emergencyLevel);
     }
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "name='" + name + '\'' +
+                ", emergencyLevel=" + emergencyLevel +
+                '}';
+    }
 }

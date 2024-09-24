@@ -15,11 +15,13 @@ public class Hospital {
     private final List<PatientArrival> patientArrivals; // Waiting room
     private final ReadWriteLock lock;
     private int patientCount;
+    private final List<Patient> patientsAttended;
 
     public Hospital() {
         this.rooms = new ArrayList<>();
         this.doctors = new TreeSet<>(); // TODO: concurrent set
         this.patientArrivals = new LinkedList<>();
+        this.patientsAttended = new LinkedList<>();
         this.lock = new ReentrantReadWriteLock(true);
         this.patientCount = 0;
     }
@@ -129,7 +131,16 @@ public class Hospital {
         lock.readLock().lock();
         try {
             Optional<PatientArrival> maybePatientArrival = patientArrivals.stream().filter(patientArrival -> Objects.equals(patientArrival.getPatient().getName(), name)).findFirst();
-            return maybePatientArrival.map(PatientArrival::getPatient).orElse(null);
+            return maybePatientArrival.map(PatientArrival::getPatient).orElseThrow(()->new PatientNotFoundException(name));
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public Optional<Patient> getAttendedPatientByName(String name) {
+        lock.readLock().lock();
+        try {
+            return patientsAttended.stream().filter(doctor -> doctor.getName().equals(name)).findFirst();
         } finally {
             lock.readLock().unlock();
         }
@@ -180,10 +191,9 @@ public class Hospital {
     public Room getRoomById(int roomNumber) {
         lock.readLock().lock();
         try {
-            // TODO: exception -> if it doesnt exist or if it is not free
             Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElseThrow(() -> new RoomNotFoundException(roomNumber));
             if (!room.isFree()) {
-                return null;
+                throw new RoomFreeException(roomNumber);
             }
             return room;
         } finally {
@@ -203,6 +213,7 @@ public class Hospital {
                     room.setFree(false);
                     room.setNewOccupation(true);
                     nextDoctor.setAvailability(Availability.ATTENDING);
+                    patientsAttended.add(patientArrival.getPatient());
                     patientArrivals.remove(patientArrival);
                     return room;
                 }
@@ -241,20 +252,21 @@ public class Hospital {
         }
     }
 
-    public void endEmergency(Doctor doctor, int roomNumber) {
+    public void endEmergency(Doctor doctor, Patient patient, Room room) {
         try {
             lock.writeLock().lock();
-            doctors.stream().filter(r -> Objects.equals(r.getName(), doctor.getName())).findFirst().orElseThrow(() -> new DoctorNotFoundException(doctor.getName()));
-            Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElseThrow(() -> new RoomNotFoundException(roomNumber));
+
             if (room.isFree()) {
-                return;
+                throw new RoomFreeException(room.getId());
             }
             if (!Objects.equals(room.getDoctor().getName(), doctor.getName())) {
-                throw new DoctorNotInRoomException(doctor.getName(), roomNumber);
+                throw new DoctorNotInRoomException(doctor.getName(), room.getId());
             }
             room.setFree(true);
             room.setDoctor(null);
             room.setPatient(null);
+            doctor.setAvailability(Availability.AVAILABLE);
+            patientsAttended.remove(patient);
 
         } finally {
             lock.writeLock().unlock();

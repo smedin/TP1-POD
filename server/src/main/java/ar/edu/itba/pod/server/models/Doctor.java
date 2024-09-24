@@ -55,4 +55,13 @@ public class Doctor implements Comparable<Doctor> {
         }
         return compare;
     }
+
+    @Override
+    public String toString() {
+        return "Doctor{" +
+                "name='" + name + '\'' +
+                ", maxLevel=" + maxLevel +
+                ", availability=" + availability +
+                '}';
+    }
 }

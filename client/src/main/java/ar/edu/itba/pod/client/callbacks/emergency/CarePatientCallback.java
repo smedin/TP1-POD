@@ -14,6 +14,7 @@ public class CarePatientCallback extends AbstractFutureCallback<EndEmergencyData
 
     @Override
     public void onSuccess(EndEmergencyData endEmergencyData) {
+
         if (endEmergencyData.getRoomData().getPatient().getName().isEmpty()) {
             this.getLogger().info("Room #{} remains free", endEmergencyData.getRoomNumber().getRoomNumber());
             this.getLatch().countDown();

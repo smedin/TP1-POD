@@ -51,4 +51,15 @@ public class Room {
     public void setNewOccupation(boolean newOccupation) {
         this.newOccupation = newOccupation;
     }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id=" + id +
+                ", free=" + free +
+                ", doctor=" + doctor +
+                ", patient=" + patient +
+                ", newOccupation=" + newOccupation +
+                '}';
+    }
 }

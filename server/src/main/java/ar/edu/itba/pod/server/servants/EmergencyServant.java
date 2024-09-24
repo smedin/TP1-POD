@@ -4,6 +4,8 @@ import ar.edu.itba.pod.grpc.admin.DoctorData;
 import ar.edu.itba.pod.grpc.emergency.*;
 import ar.edu.itba.pod.grpc.waitingRoom.PatientData;
 import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
+import ar.edu.itba.pod.server.exceptions.PatientNotFoundException;
+import ar.edu.itba.pod.server.exceptions.RoomNotFoundException;
 import ar.edu.itba.pod.server.models.*;
 import ar.edu.itba.pod.server.utils.Pair;
 import com.google.protobuf.BoolValue;
@@ -25,7 +27,6 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
     @Override
     public void startEmergencyByRoom(RoomNumber request, StreamObserver<EndEmergencyData> responseObserver) {
         Room room = hospital.getRoomById(request.getRoomNumber());
-        System.out.println("Antes de empezar la emergencia");
         room = hospital.startEmergencyByRoom(room);
         EndEmergencyData emergencyData;
 
@@ -63,12 +64,8 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                     .build();
         }
 
-        System.out.println("Antes del oncomplete");
-
         responseObserver.onNext(emergencyData);
         responseObserver.onCompleted();
-
-        System.out.println("Pase el oncomplete");
 
         notificationManager.notifyEmergencyTaken(room);
     }
@@ -141,10 +138,11 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
     public void endEmergency(EndEmergencyData request, StreamObserver<EndEmergencyData> responseObserver) {
         String doctorName = request.getRoomData().getDoctor().getName();
         String patientName = request.getRoomData().getPatient().getName();
-        Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
-        Patient patient = hospital.getPatientByName(patientName);
         int roomN = request.getRoomNumber().getRoomNumber();
-        hospital.endEmergency(doctor, roomN);
+        Room room = hospital.getRooms().stream().filter(r -> r.getId() == roomN).findFirst().orElseThrow(() -> new RoomNotFoundException(roomN));
+        Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
+        Patient patient = hospital.getAttendedPatientByName(patientName).orElseThrow(() -> new PatientNotFoundException(patientName));
+        hospital.endEmergency(doctor, patient, room);
         EndEmergencyData emergencyData;
         RoomData roomData = RoomData
                 .newBuilder()
@@ -165,5 +163,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                 .setRoomData(roomData)
                 .setRoomNumber(roomNumber)
                 .build();
+        responseObserver.onNext(emergencyData);
+        responseObserver.onCompleted();
     }
 }
