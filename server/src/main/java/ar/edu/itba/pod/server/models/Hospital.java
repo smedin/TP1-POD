@@ -279,7 +279,6 @@ public class Hospital {
             room.setPatient(null);
             doctor.setAvailability(Availability.AVAILABLE);
             patientsAttended.remove(patient);
-
         } finally {
             lock.writeLock().unlock();
         }

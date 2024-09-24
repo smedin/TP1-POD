@@ -56,7 +56,6 @@ public class NotificationClient {
                 latch.await();
                 break;
             case "unregister":
-                System.out.println("ESTOY EN EL CLIENTE");
                 latch = new CountDownLatch(1);
                 Registration unregistration = Registration.newBuilder().setDoctorName(doctorName).build();
                 ListenableFuture<Notification> unregisterResponse = futureStub.unregisterDoctor(unregistration);

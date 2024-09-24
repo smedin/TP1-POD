@@ -66,7 +66,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
 
         responseObserver.onNext(emergencyData);
         responseObserver.onCompleted();
-
+        //Control flow gets to this point only of no exception was thrown.
         notificationManager.notifyEmergencyTaken(room);
     }
 
@@ -134,7 +134,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         responseObserver.onCompleted();
     }
 
-        @Override
+    @Override
     public void endEmergency(EndEmergencyData request, StreamObserver<EndEmergencyData> responseObserver) {
         String doctorName = request.getRoomData().getDoctor().getName();
         String patientName = request.getRoomData().getPatient().getName();
@@ -142,6 +142,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         Room room = hospital.getRooms().stream().filter(r -> r.getId() == roomN).findFirst().orElseThrow(() -> new RoomNotFoundException(roomN));
         Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
         Patient patient = hospital.getAttendedPatientByName(patientName).orElseThrow(() -> new PatientNotFoundException(patientName));
+        Patient patientBackUpForNotification = new Patient(patientName, patient.getEmergencyLevel());
         hospital.endEmergency(doctor, patient, room);
         EndEmergencyData emergencyData;
         RoomData roomData = RoomData
@@ -165,5 +166,7 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                 .build();
         responseObserver.onNext(emergencyData);
         responseObserver.onCompleted();
+        //Control flow gets to this point only of no exception was thrown.
+        notificationManager.notifyEmergencyIsOver(patientBackUpForNotification, doctor, room);
     }
 }
