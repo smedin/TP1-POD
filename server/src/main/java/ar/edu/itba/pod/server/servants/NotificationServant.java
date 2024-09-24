@@ -28,7 +28,6 @@ public class NotificationServant extends NotificationServiceGrpc.NotificationSer
 
     @Override
     public void unregisterDoctor(Registration request, StreamObserver<Notification> responseObserver) {
-        System.out.println("ESTOYYYYY");
         String doctorName = request.getDoctorName();
         Doctor doctor = hospital.getDoctorByName(doctorName).get(); //TODO: check if could not be present. Logic says it must be.
         StreamObserver<Notification> notificationStreamObserver = notificationManager.UnregisterDoctor(doctorName);
