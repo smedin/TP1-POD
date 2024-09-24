@@ -1,6 +1,8 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.callbacks.query.PatientListCallback;
 import ar.edu.itba.pod.client.callbacks.query.RoomListCallback;
+import ar.edu.itba.pod.grpc.query.PatientList;
 import ar.edu.itba.pod.grpc.query.QueryServiceGrpc;
 import ar.edu.itba.pod.grpc.query.RoomList;
 import ar.edu.itba.pod.grpc.query.RoomNumber;
@@ -27,17 +29,18 @@ public class QueryClient {
         String action = System.getProperty("action");
 
         QueryServiceGrpc.QueryServiceFutureStub stub = QueryServiceGrpc.newFutureStub(channel);
+        String filePath = System.getProperty("outPath");
 
         switch (action) {
             case "queryRooms" -> {
                 latch = new CountDownLatch(1);
                 ListenableFuture<RoomList> roomList = stub.getRooms(Empty.newBuilder().build());
-                String filePath = System.getProperty("outPath");
                 Futures.addCallback(roomList, new RoomListCallback(logger, latch, filePath), Executors.newCachedThreadPool());
             }
             case "queryWaitingRoom" -> {
                 latch = new CountDownLatch(1);
-                stub.getWaitingRoom(Empty.newBuilder().build());
+                ListenableFuture<PatientList> patientList = stub.getWaitingRoom(Empty.newBuilder().build());
+                Futures.addCallback(patientList, new PatientListCallback(logger, latch, filePath), Executors.newCachedThreadPool());
             }
             case "queryCares" -> {
                 latch = new CountDownLatch(1);

@@ -35,6 +35,18 @@ public class Hospital {
         }
     }
 
+    public List<Patient> getWaitingPatients() {
+        lock.readLock().lock();
+        try {
+            List<Patient> patients = new LinkedList<>();
+            patientArrivals.forEach(pa -> patients.add(pa.getPatient()));
+            return patients;
+        } finally {
+            lock.readLock().unlock();
+        }
+
+    }
+
     public void addRoom(Room room) {
         lock.writeLock().lock();
         try {

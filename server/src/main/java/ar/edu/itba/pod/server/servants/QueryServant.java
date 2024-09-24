@@ -2,6 +2,7 @@ package ar.edu.itba.pod.server.servants;
 
 import ar.edu.itba.pod.grpc.query.*;
 import ar.edu.itba.pod.server.models.Hospital;
+import ar.edu.itba.pod.server.models.Patient;
 import ar.edu.itba.pod.server.models.Room;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
@@ -44,7 +45,18 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
 
     @Override
     public void getWaitingRoom(Empty request, StreamObserver<PatientList> responseObserver) {
+        List<Patient> patients = hospital.getWaitingPatients();
 
+        PatientList.Builder patientListBuilder = PatientList.newBuilder();
+        for (Patient patient : patients) {
+            PersonData personData = PersonData.newBuilder()
+                    .setName(patient.getName())
+                    .setLevel(patient.getEmergencyLevel())
+                    .build();
+            patientListBuilder.addPatientData(personData);
+        }
+        responseObserver.onNext(patientListBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override
