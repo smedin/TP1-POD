@@ -1,11 +1,9 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.callbacks.query.EmergencyListCallback;
 import ar.edu.itba.pod.client.callbacks.query.PatientListCallback;
 import ar.edu.itba.pod.client.callbacks.query.RoomListCallback;
-import ar.edu.itba.pod.grpc.query.PatientList;
-import ar.edu.itba.pod.grpc.query.QueryServiceGrpc;
-import ar.edu.itba.pod.grpc.query.RoomList;
-import ar.edu.itba.pod.grpc.query.RoomNumber;
+import ar.edu.itba.pod.grpc.query.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Empty;
@@ -44,7 +42,10 @@ public class QueryClient {
             }
             case "queryCares" -> {
                 latch = new CountDownLatch(1);
-                stub.getFinalizedEmergencies(RoomNumber.newBuilder().build());
+                String roomNumber = System.getProperty("room");
+                RoomNumber roomNumberReq = RoomNumber.newBuilder().setRoomNumber(roomNumber!=null?Integer.parseInt(roomNumber):-1).build();
+                ListenableFuture<EmergencyList> emergencyList = stub.getFinalizedEmergencies(roomNumberReq);
+                Futures.addCallback(emergencyList, new EmergencyListCallback(logger, latch, filePath), Executors.newCachedThreadPool());
             }
         }
         try {

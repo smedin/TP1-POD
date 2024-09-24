@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.server.servants;
 
 import ar.edu.itba.pod.grpc.query.*;
+import ar.edu.itba.pod.server.models.Emergency;
 import ar.edu.itba.pod.server.models.Hospital;
 import ar.edu.itba.pod.server.models.Patient;
 import ar.edu.itba.pod.server.models.Room;
@@ -60,7 +61,23 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     }
 
     @Override
-    public void getFinalizedEmergencies(RoomNumber request, StreamObserver<FinalizedEmergencyList> responseObserver) {
+    public void getFinalizedEmergencies(RoomNumber request, StreamObserver<EmergencyList> responseObserver) {
+        List<Emergency> emergencies = hospital.getFinalizedEmergencies(request.getRoomNumber());
 
+        EmergencyList.Builder emergencyList = EmergencyList.newBuilder();
+        for (Emergency emergency : emergencies) {
+            PersonData doctor = PersonData.newBuilder()
+                    .setName(emergency.getDoctor().getName())
+                    .setLevel(emergency.getDoctor().getMaxLevel())
+                    .build();
+            PersonData patient = PersonData.newBuilder()
+                    .setName(emergency.getPatient().getName())
+                    .setLevel(emergency.getPatient().getEmergencyLevel())
+                    .build();
+            FinalizedEmergency finalizedEmergency = FinalizedEmergency.newBuilder().setDoctor(doctor).setPatient(patient).setRoomNumber(emergency.getRoomNumber()).build();
+            emergencyList.addEmergency(finalizedEmergency);
+        }
+        responseObserver.onNext(emergencyList.build());
+        responseObserver.onCompleted();
     }
 }

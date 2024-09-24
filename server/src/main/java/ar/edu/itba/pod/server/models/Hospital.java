@@ -15,13 +15,15 @@ public class Hospital {
     private final List<PatientArrival> patientArrivals; // Waiting room
     private final ReadWriteLock lock;
     private int patientCount;
-    private final List<Patient> patientsAttended;
+    private final List<Patient> patientsInAttention;
+    private final List<Emergency> finalizedEmergencies;
 
     public Hospital() {
         this.rooms = new ArrayList<>();
         this.doctors = new TreeSet<>(); // TODO: concurrent set
         this.patientArrivals = new LinkedList<>();
-        this.patientsAttended = new LinkedList<>();
+        this.patientsInAttention = new LinkedList<>();
+        finalizedEmergencies = new LinkedList<>();
         this.lock = new ReentrantReadWriteLock(true);
         this.patientCount = 0;
     }
@@ -38,13 +40,24 @@ public class Hospital {
     public List<Patient> getWaitingPatients() {
         lock.readLock().lock();
         try {
-            List<Patient> patients = new LinkedList<>();
-            patientArrivals.forEach(pa -> patients.add(pa.getPatient()));
-            return patients;
+            return patientArrivals.stream().map(PatientArrival::getPatient).toList();
         } finally {
             lock.readLock().unlock();
         }
+    }
 
+    public List<Emergency> getFinalizedEmergencies(Integer roomNumber) {
+        lock.readLock().lock();
+        try {
+            if (roomNumber==-1){
+                return finalizedEmergencies;
+            }
+
+            return finalizedEmergencies.stream().filter(fe -> fe.getRoomNumber()==roomNumber).toList();
+
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public void addRoom(Room room) {
@@ -152,7 +165,7 @@ public class Hospital {
     public Optional<Patient> getAttendedPatientByName(String name) {
         lock.readLock().lock();
         try {
-            return patientsAttended.stream().filter(doctor -> doctor.getName().equals(name)).findFirst();
+            return patientsInAttention.stream().filter(patient -> patient.getName().equals(name)).findFirst();
         } finally {
             lock.readLock().unlock();
         }
@@ -225,7 +238,7 @@ public class Hospital {
                     room.setFree(false);
                     room.setNewOccupation(true);
                     nextDoctor.setAvailability(Availability.ATTENDING);
-                    patientsAttended.add(patientArrival.getPatient());
+                    patientsInAttention.add(patientArrival.getPatient());
                     patientArrivals.remove(patientArrival);
                     return room;
                 }
@@ -278,7 +291,8 @@ public class Hospital {
             room.setDoctor(null);
             room.setPatient(null);
             doctor.setAvailability(Availability.AVAILABLE);
-            patientsAttended.remove(patient);
+            finalizedEmergencies.add(new Emergency(room.getId(), doctor, patient));
+            patientsInAttention.remove(patient);
 
         } finally {
             lock.writeLock().unlock();

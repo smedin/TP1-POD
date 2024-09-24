@@ -21,7 +21,6 @@ public class PatientListCallback extends AbstractFutureCallback<PatientList> {
 
     @Override
     public void onSuccess(PatientList patientList) {
-        this.getLogger().info("Patient,Level");
         WriterUtils.writeQuery2(filePath, this.getLogger(), patientList);
         this.getLatch().countDown();
 

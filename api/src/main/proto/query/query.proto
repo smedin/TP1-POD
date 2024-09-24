@@ -10,7 +10,7 @@ import "google/protobuf/empty.proto";
 service QueryService {
   rpc getRooms(google.protobuf.Empty) returns (RoomList);
   rpc getWaitingRoom(google.protobuf.Empty) returns (PatientList);
-  rpc getFinalizedEmergencies(RoomNumber) returns (FinalizedEmergencyList);
+  rpc getFinalizedEmergencies(RoomNumber) returns (EmergencyList);
 }
 
 message RoomList {
@@ -37,8 +37,8 @@ message RoomNumber {
   int32 roomNumber = 1;
 }
 
-message FinalizedEmergencyList {
-  repeated FinalizedEmergency finalizedEmergency = 1;
+message EmergencyList {
+  repeated FinalizedEmergency emergency = 1;
 }
 
 message FinalizedEmergency {
