@@ -5,15 +5,12 @@ package query;
 option java_package = "ar.edu.itba.pod.grpc.query";
 option java_multiple_files = true;
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
 
 service QueryService {
-  rpc getRooms(OutPath) returns (RoomList);
-  rpc getWaitingRoom(OutPath) returns (PatientList);
-  rpc getFinalizedEmergencies(FinalizedInput) returns (FinalizedEmergencyList);
-}
-
-message OutPath {
-  string path = 1;
+  rpc getRooms(google.protobuf.Empty) returns (RoomList);
+  rpc getWaitingRoom(google.protobuf.Empty) returns (PatientList);
+  rpc getFinalizedEmergencies(RoomNumber) returns (FinalizedEmergencyList);
 }
 
 message RoomList {
@@ -36,9 +33,8 @@ message PatientList {
   repeated PersonData patientData = 1;
 }
 
-message FinalizedInput {
-  OutPath path = 1;
-  int32 roomNumber = 2;
+message RoomNumber {
+  int32 roomNumber = 1;
 }
 
 message FinalizedEmergencyList {

@@ -29,7 +29,7 @@ public class Hospital {
     public List<Room> getRooms() {
         lock.readLock().lock();
         try {
-            return new ArrayList<>(rooms);
+            return rooms;
         } finally {
             lock.readLock().unlock();
         }
