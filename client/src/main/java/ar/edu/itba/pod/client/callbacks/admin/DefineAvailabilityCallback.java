@@ -20,7 +20,7 @@ public class DefineAvailabilityCallback extends AbstractFutureCallback<DoctorDat
     public void onSuccess(DoctorData result) {
         String availability = doctorAvailability.getAvailability();
         String availabilityCapitalized = availability.substring(0, 1).toUpperCase() + availability.substring(1).toLowerCase();
-        this.getLogger().info(result.getDoctorName().getName() + " (" + result.getLevel() + ") is " + availabilityCapitalized);
+        this.getLogger().info("Doctor " + result.getDoctorName().getName() + " (" + result.getLevel() + ") is " + availabilityCapitalized);
         this.getLatch().countDown();
     }
 }
