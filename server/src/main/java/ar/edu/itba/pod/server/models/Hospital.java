@@ -184,9 +184,6 @@ public class Hospital {
         lock.readLock().lock();
         try {
             Patient patient = getPatientByName(name);
-            if (patient == null) {
-                return -1;
-            }
             return patientArrivals.indexOf(new PatientArrival(0, patient));
         } finally {
             lock.readLock().unlock();
