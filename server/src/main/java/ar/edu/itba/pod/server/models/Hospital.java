@@ -1,7 +1,6 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.server.exceptions.*;
-import ar.edu.itba.pod.server.utils.Pair;
 import ar.edu.itba.pod.server.utils.PatientArrival;
 
 import java.util.*;
@@ -78,10 +77,10 @@ public class Hospital {
         }
     }
 
-    public Optional<Doctor> getDoctorByName(String name) {
+    public Doctor getDoctorByName(String name) {
         lock.readLock().lock();
         try {
-            return doctors.stream().filter(doctor -> doctor.getName().equals(name)).findFirst();
+            return doctors.stream().filter(doctor -> doctor.getName().equals(name)).findFirst().orElseThrow(() -> new DoctorNotFoundException(name));
         } finally {
             lock.readLock().unlock();
         }
@@ -90,25 +89,20 @@ public class Hospital {
     public Doctor defineDoctorAvailability(String doctorName, Availability availability) {
         lock.writeLock().lock();
         try {
-            Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
-            if (maybeDoctor.isPresent()) {
-                Doctor doctor = maybeDoctor.get();
+            Doctor doctor = getDoctorByName(doctorName);
 
-                if (doctor.getAvailability().equals(Availability.ATTENDING)) {
-                    throw new DoctorIsAttendingException(doctorName);
-                }
-
-                doctor.setAvailability(availability);
-                return doctor;
-            } else {
-                throw new DoctorNotFoundException(doctorName);
+            if (doctor.getAvailability().equals(Availability.ATTENDING)) {
+                throw new DoctorIsAttendingException(doctorName);
             }
+
+            doctor.setAvailability(availability);
+            return doctor;
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    public Availability getDoctorAvailability(String doctorName) {
+    /*public Availability getDoctorAvailability(String doctorName) {
         lock.readLock().lock();
         try {
             Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
@@ -118,7 +112,7 @@ public class Hospital {
         } finally {
             lock.readLock().unlock();
         }
-    }
+    }*/
 
     public boolean addDoctor(Doctor doctor) {
         boolean added;

@@ -56,12 +56,16 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     }
 
     @Override
-    public void getDoctorAvailability(DoctorName request, StreamObserver<DoctorAvailability> response) {
+    public void getDoctorAvailability(DoctorName request, StreamObserver<DoctorAvailabilityResponse> response) {
         String doctorName = request.getName();
 
-        Availability availability = hospital.getDoctorAvailability(doctorName); // TODO: check
+        Doctor doctor = hospital.getDoctorByName(doctorName);
 
-        DoctorAvailability toReturn = DoctorAvailability.newBuilder().setDoctorName(request).setAvailability(availability.getState()).build();
+        DoctorAvailabilityResponse toReturn = DoctorAvailabilityResponse
+                .newBuilder()
+                .setDoctor(DoctorData.newBuilder().setDoctorName(DoctorName.newBuilder().setName(doctor.getName())).setLevel(doctor.getMaxLevel()).build())
+                .setAvailability(doctor.getAvailability().toString())
+                .build();
 
         response.onNext(toReturn);
         response.onCompleted();

@@ -1,13 +1,7 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.client.callbacks.admin.AddDoctorCallback;
-import ar.edu.itba.pod.client.callbacks.admin.AddRoomCallback;
-import ar.edu.itba.pod.client.callbacks.admin.DefineAvailabilityCallback;
-import ar.edu.itba.pod.client.callbacks.admin.GetDoctorAvailabilityCallback;
-import ar.edu.itba.pod.grpc.admin.AdminServiceGrpc;
-import ar.edu.itba.pod.grpc.admin.DoctorAvailability;
-import ar.edu.itba.pod.grpc.admin.DoctorData;
-import ar.edu.itba.pod.grpc.admin.DoctorName;
+import ar.edu.itba.pod.client.callbacks.admin.*;
+import ar.edu.itba.pod.grpc.admin.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
@@ -20,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class AdminClient {
     private static Logger logger = LoggerFactory.getLogger(AdminClient.class);
@@ -67,9 +60,9 @@ public class AdminClient {
                 ListenableFuture<DoctorData> availabilityResponse = stub.defineAvailability(doctorAvailability);
                 Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch, doctorAvailability), Executors.newCachedThreadPool());
                 break;
-            case "getDoctorAvailability":
+            case "checkDoctor":
                 latch = new CountDownLatch(1);
-                ListenableFuture<DoctorAvailability> doctorAvailabilityResponse = stub.getDoctorAvailability(DoctorName
+                ListenableFuture<DoctorAvailabilityResponse> doctorAvailabilityResponse = stub.getDoctorAvailability(DoctorName
                         .newBuilder()
                         .setName(System.getProperty("doctor"))
                         .build());
@@ -86,7 +79,7 @@ public class AdminClient {
             Thread.currentThread().interrupt();
             logger.error("Error waiting for latch: " + e.getMessage());
         } finally {
-            channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+            channel.shutdownNow();
         }
     }
 }

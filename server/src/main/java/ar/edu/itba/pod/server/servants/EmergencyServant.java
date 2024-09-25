@@ -140,7 +140,8 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         String patientName = request.getRoomData().getPatient().getName();
         int roomN = request.getRoomNumber().getRoomNumber();
         Room room = hospital.getRooms().stream().filter(r -> r.getId() == roomN).findFirst().orElseThrow(() -> new RoomNotFoundException(roomN));
-        Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
+        //Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
+        Doctor doctor = hospital.getDoctorByName(doctorName);
         Patient patient = hospital.getAttendedPatientByName(patientName).orElseThrow(() -> new PatientNotFoundException(patientName));
         Patient patientBackUpForNotification = new Patient(patientName, patient.getEmergencyLevel());
         hospital.endEmergency(doctor, patient, room);
