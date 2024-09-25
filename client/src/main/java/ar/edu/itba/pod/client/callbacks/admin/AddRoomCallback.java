@@ -14,7 +14,7 @@ public class AddRoomCallback extends AbstractFutureCallback<Int32Value> {
 
     @Override
     public void onSuccess(Int32Value result) {
-        this.getLogger().info("Room #" + result.getValue() + " added successfully");
+        this.getLogger().info(String.format("Room #%d added successfully", result.getValue()));
         this.getLatch().countDown();
     }
 }

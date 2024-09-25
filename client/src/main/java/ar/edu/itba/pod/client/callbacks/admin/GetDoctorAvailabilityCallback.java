@@ -20,7 +20,7 @@ public class GetDoctorAvailabilityCallback extends AbstractFutureCallback<Doctor
 
     @Override
     public void onFailure(Throwable t) {
-        this.getLogger().error("Error getting doctor availability: " + t.getMessage());
+        this.getLogger().error(String.format("Error getting doctor availability: %s", t.getMessage()));
         this.getLatch().countDown();
     }
 }
