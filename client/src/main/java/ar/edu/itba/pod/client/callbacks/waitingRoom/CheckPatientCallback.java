@@ -14,7 +14,7 @@ public class CheckPatientCallback extends AbstractFutureCallback<TimeData> {
 
     @Override
     public void onSuccess(TimeData response) {
-        this.getLogger().info("Patient " + response.getPatient().getPatientName().getName() + " (" + response.getPatient().getLevel() + ") is in the waiting room with " + response.getWaitingTime() + " patients ahead");
+        this.getLogger().info(String.format("Patient %s (%d) is in the waiting room with %d patients ahead", response.getPatient().getPatientName().getName(), response.getPatient().getLevel(), response.getWaitingTime()));
         this.getLatch().countDown();
     }
 
