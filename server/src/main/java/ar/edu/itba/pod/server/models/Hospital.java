@@ -209,7 +209,7 @@ public class Hospital {
         try {
             Room room = rooms.stream().filter(r -> r.getId() == roomNumber).findFirst().orElseThrow(() -> new RoomNotFoundException(roomNumber));
             if (!room.isFree()) {
-                throw new RoomFreeException(roomNumber);
+                throw new RoomNotFreeException(roomNumber);
             }
             return room;
         } finally {
