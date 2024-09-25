@@ -22,7 +22,7 @@ public class AdminClient {
     public static void main(String[] args) throws InterruptedException {
         logger.info("TP1-POD Client Starting ...");
         logger.info("grpc-com-patterns Client Starting ...");
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(System.getProperty("serverAddress"))
                 .usePlaintext()
                 .build();
 

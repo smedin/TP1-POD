@@ -20,7 +20,7 @@ public class QueryClient {
     private static CountDownLatch latch;
 
     public static void main(String[] args) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(System.getProperty("serverAddress"))
                 .usePlaintext()
                 .build();
 

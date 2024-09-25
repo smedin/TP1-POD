@@ -194,7 +194,7 @@ public class Hospital {
     }
 
     public Doctor getNextDoctor(int patientLevel) {
-        lock.writeLock().lock();
+        lock.readLock().lock();
         try {
             for (Doctor doctor : doctors) {
                 if (doctor.isAvailable() && doctor.getMaxLevel() >= patientLevel) {
@@ -203,7 +203,7 @@ public class Hospital {
             }
             return null;
         } finally {
-            lock.writeLock().unlock();
+            lock.readLock().unlock();
         }
     }
 
@@ -272,9 +272,8 @@ public class Hospital {
     }
 
     public void endEmergency(Doctor doctor, Patient patient, Room room) {
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
-
             if (room.isFree()) {
                 throw new RoomFreeException(room.getId());
             }
