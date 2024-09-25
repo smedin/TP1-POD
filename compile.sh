@@ -12,13 +12,14 @@ cp "$client_dir/tpe1-g4-client-2024.2Q-bin.tar.gz" "executables/"
 cd "executables"
 
 tar -xzf "tpe1-g4-server-2024.2Q-bin.tar.gz"
-mv ./tpe1-g4-server-2024.2Q/run-server.sh ./server.sh
-rm -r tpe1-g4-server-2024.2Q
+mv ./tpe1-g4-server-2024.2Q/run-server.sh ./tpe1-g4-server-2024.2Q/server.sh
+#mv ./tpe1-g4-server-2024.2Q ./server
+#rm -r tpe1-g4-server-2024.2Q
 rm "tpe1-g4-server-2024.2Q-bin.tar.gz"
 
 tar -xzf "tpe1-g4-client-2024.2Q-bin.tar.gz"
-mv ./tpe1-g4-client-2024.2Q/*.sh ./
-rm -r tpe1-g4-client-2024.2Q
+#rm -r tpe1-g4-client-2024.2Q
+#mv ./tpe1-g4-client-2024.2Q ./client
 rm "tpe1-g4-client-2024.2Q-bin.tar.gz"
 
-chmod +x ./*.sh
+chmod +x ./*/*.sh
