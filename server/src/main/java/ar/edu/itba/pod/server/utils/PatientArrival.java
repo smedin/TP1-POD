@@ -5,20 +5,12 @@ import ar.edu.itba.pod.server.models.Patient;
 import java.util.Objects;
 
 public class PatientArrival implements Comparable<PatientArrival>{
-    private Integer arrivalOrder;
+    private final Integer arrivalOrder;
     private Patient patient;
 
     public PatientArrival(Integer arrivalOrder, Patient patient) {
         this.arrivalOrder = arrivalOrder;
         this.patient = patient;
-    }
-
-    public Integer getArrivalOrder() {
-        return arrivalOrder;
-    }
-
-    public void setArrivalOrder(Integer arrivalOrder) {
-        this.arrivalOrder = arrivalOrder;
     }
 
     public Patient getPatient() {

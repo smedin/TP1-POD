@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class WaitingRoomClient {
-    private static Logger logger = LoggerFactory.getLogger(WaitingRoomClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(WaitingRoomClient.class);
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {

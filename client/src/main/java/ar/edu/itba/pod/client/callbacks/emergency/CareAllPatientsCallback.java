@@ -16,16 +16,16 @@ public class CareAllPatientsCallback extends AbstractFutureCallback<ListEmergenc
     public void onSuccess(ListEmergencyData listEmergencyData) {
         for (EmergencyData emergencyData : listEmergencyData.getEmergencyDataList()) {
             if (!emergencyData.getRoomNumber().getNewOccupation()) {
-                this.getLogger().info("Room #{} remains {}",
+                this.getLogger().info(String.format("Room #%d remains %s",
                         emergencyData.getRoomNumber().getRoomNumber().getRoomNumber(),
-                        emergencyData.getRoomNumber().getFree() ? "Free" : "Occupied");
+                        emergencyData.getRoomNumber().getFree() ? "Free" : "Occupied"));
             } else {
-                this.getLogger().info("Patient {} ({}) and Doctor {} ({}) are in room #{}",
+                this.getLogger().info(String.format("Patient %s (%d) and Doctor %s (%d) are in room #%d",
                         emergencyData.getRoomData().getPatient().getName(),
                         emergencyData.getRoomData().getPatient().getLevel(),
                         emergencyData.getRoomData().getDoctor().getName(),
                         emergencyData.getRoomData().getDoctor().getLevel(),
-                        emergencyData.getRoomNumber().getRoomNumber().getRoomNumber());
+                        emergencyData.getRoomNumber().getRoomNumber().getRoomNumber()));
             }
         }
     }

@@ -1,14 +1,9 @@
 package ar.edu.itba.pod.server.servants;
 
-import ar.edu.itba.pod.grpc.admin.DoctorData;
 import ar.edu.itba.pod.grpc.emergency.*;
-import ar.edu.itba.pod.grpc.waitingRoom.PatientData;
-import ar.edu.itba.pod.server.exceptions.DoctorNotFoundException;
 import ar.edu.itba.pod.server.exceptions.PatientNotFoundException;
 import ar.edu.itba.pod.server.exceptions.RoomNotFoundException;
 import ar.edu.itba.pod.server.models.*;
-import ar.edu.itba.pod.server.utils.Pair;
-import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 
@@ -63,6 +58,8 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                             .build())
                     .build();
         }
+
+        hospital.cleanOccupations();
 
         responseObserver.onNext(emergencyData);
         responseObserver.onCompleted();
@@ -140,7 +137,6 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
         String patientName = request.getRoomData().getPatient().getName();
         int roomN = request.getRoomNumber().getRoomNumber();
         Room room = hospital.getRooms().stream().filter(r -> r.getId() == roomN).findFirst().orElseThrow(() -> new RoomNotFoundException(roomN));
-        //Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName));
         Doctor doctor = hospital.getDoctorByName(doctorName);
         Patient patient = hospital.getAttendedPatientByName(patientName).orElseThrow(() -> new PatientNotFoundException(patientName));
         Patient patientBackUpForNotification = new Patient(patientName, patient.getEmergencyLevel());

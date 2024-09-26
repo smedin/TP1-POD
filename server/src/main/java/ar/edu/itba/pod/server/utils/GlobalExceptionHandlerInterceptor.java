@@ -41,11 +41,12 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
             map.put(InvalidLevelException.class, INVALID_ARGUMENT);
             map.put(DoctorNotFoundException.class, NOT_FOUND);
             map.put(RoomNotFoundException.class, NOT_FOUND);
-            map.put(UnableToStartEmergencyException.class, FAILED_PRECONDITION);
             map.put(RoomNotFreeException.class, FAILED_PRECONDITION);
             map.put(RoomFreeException.class, FAILED_PRECONDITION);
             map.put(PatientNotFoundException.class, NOT_FOUND);
             map.put(DoctorNotInRoomException.class, FAILED_PRECONDITION);
+            map.put(DoctorAlreadyRegisteredForNotificationsException.class, ALREADY_EXISTS);
+            map.put(DoctorNotRegisteredForNotificationsException.class, NOT_FOUND);
             return map;
         }
 
@@ -57,7 +58,6 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
                 handleException(ex, delegate, headers);
             }
         }
-
 
         private void handleException(RuntimeException exception, ServerCall<T, R> serverCall, Metadata headers) {
             Throwable error = exception;

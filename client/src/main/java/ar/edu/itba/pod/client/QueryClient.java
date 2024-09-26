@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class QueryClient {
-    private static Logger logger = LoggerFactory.getLogger(QueryClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(QueryClient.class);
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {

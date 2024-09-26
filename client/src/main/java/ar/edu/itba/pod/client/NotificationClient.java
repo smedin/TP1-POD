@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NotificationClient {
-    private static Logger logger = LoggerFactory.getLogger(NotificationClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(NotificationClient.class);
     private static CountDownLatch latch;
 
     public static void main(String[] args) throws InterruptedException {

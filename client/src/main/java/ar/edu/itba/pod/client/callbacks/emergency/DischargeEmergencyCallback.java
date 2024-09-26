@@ -13,7 +13,7 @@ public class DischargeEmergencyCallback extends AbstractFutureCallback<EndEmerge
 
     @Override
     public void onSuccess(EndEmergencyData endEmergencyData) {
-        this.getLogger().info("Patient {} ({}) has been discharged from Doctor {} ({}) and the Room #{} is now Free", endEmergencyData.getRoomData().getPatient().getName(), endEmergencyData.getRoomData().getPatient().getLevel(), endEmergencyData.getRoomData().getDoctor().getName(), endEmergencyData.getRoomData().getDoctor().getLevel(), endEmergencyData.getRoomNumber().getRoomNumber());
+        this.getLogger().info(String.format("Patient %s (%d) has been discharged from Doctor %s (%d) and the Room #%d is now Free", endEmergencyData.getRoomData().getPatient().getName(), endEmergencyData.getRoomData().getPatient().getLevel(), endEmergencyData.getRoomData().getDoctor().getName(), endEmergencyData.getRoomData().getDoctor().getLevel(), endEmergencyData.getRoomNumber().getRoomNumber()));
         this.getLatch().countDown();
     }
 }

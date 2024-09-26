@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import java.util.concurrent.CountDownLatch;
 
 public class AddPatientCallback extends AbstractFutureCallback<Empty> {
-    private PatientData patientData;
+    private final PatientData patientData;
 
     public AddPatientCallback(Logger logger, CountDownLatch latch, PatientData patientData) {
         super(logger, latch);

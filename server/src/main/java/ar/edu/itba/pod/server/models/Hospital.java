@@ -68,15 +68,6 @@ public class Hospital {
         }
     }
 
-    public Set<Doctor> getDoctors() {
-        lock.readLock().lock();
-        try {
-            return new HashSet<>(doctors);
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
     public Doctor getDoctorByName(String name) {
         lock.readLock().lock();
         try {
@@ -120,7 +111,7 @@ public class Hospital {
         try {
             Patient patient = new Patient(name, emergencyLevel);
             PatientArrival patientWithOrder = new PatientArrival(patientCount++, patient);
-            if (patientArrivals.contains(patientWithOrder)){
+            if (patientArrivals.contains(patientWithOrder) || patientsInAttention.contains(patientWithOrder.getPatient()) || finalizedEmergencies.stream().anyMatch(e -> e.getPatient().equals(patientWithOrder.getPatient()))) {
                 throw new PatientAlreadyInWaitingRoomException(patient.getName());
             }
             patientArrivals.add(patientWithOrder);

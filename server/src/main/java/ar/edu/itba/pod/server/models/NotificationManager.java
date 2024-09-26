@@ -14,7 +14,6 @@ public class NotificationManager {
     private final Map<String, StreamObserver<Notification>> registeredDoctors = new ConcurrentHashMap<>();
 
     public void registerDoctor(String doctorName, StreamObserver<Notification> observer) {
-        //TODO: Before registering check outside this function if the doctor exists in hospital
         if(registeredDoctors.putIfAbsent(doctorName, observer) != null) {
             throw new DoctorAlreadyRegisteredForNotificationsException(doctorName);
         }

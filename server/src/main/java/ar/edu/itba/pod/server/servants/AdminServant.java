@@ -2,7 +2,6 @@ package ar.edu.itba.pod.server.servants;
 
 import ar.edu.itba.pod.grpc.admin.*;
 import ar.edu.itba.pod.server.models.*;
-import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import io.grpc.stub.StreamObserver;

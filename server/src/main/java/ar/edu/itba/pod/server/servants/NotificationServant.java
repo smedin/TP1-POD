@@ -21,7 +21,6 @@ public class NotificationServant extends NotificationServiceGrpc.NotificationSer
     @Override
     public void registerDoctor(Registration request, StreamObserver<Notification> responseObserver) {
         String doctorName = request.getDoctorName();
-        //Doctor doctor = hospital.getDoctorByName(doctorName).orElseThrow(() -> new DoctorNotFoundException(doctorName)); //TODO: check if it's correct to check doctor existance here
         Doctor doctor = hospital.getDoctorByName(doctorName);
         notificationManager.registerDoctor(doctorName, responseObserver);
         notificationManager.notifyRegistration(doctor);
@@ -30,10 +29,8 @@ public class NotificationServant extends NotificationServiceGrpc.NotificationSer
     @Override
     public void unregisterDoctor(Registration request, StreamObserver<Notification> responseObserver) {
         String doctorName = request.getDoctorName();
-        //Doctor doctor = hospital.getDoctorByName(doctorName).get(); //TODO: check if could not be present. Logic says it must be.
         Doctor doctor = hospital.getDoctorByName(doctorName);
         StreamObserver<Notification> notificationStreamObserver = notificationManager.UnregisterDoctor(doctorName);
-        //TODO: check if it's okey to return the message to both ends
         String message = String.format("%s (%d) unregistered successfully for page", doctorName, doctor.getMaxLevel());
         notificationStreamObserver.onNext(Notification.newBuilder().setMessage(message).build());
         notificationStreamObserver.onCompleted();

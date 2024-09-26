@@ -14,13 +14,7 @@ public class GetDoctorAvailabilityCallback extends AbstractFutureCallback<Doctor
 
     @Override
     public void onSuccess(DoctorAvailabilityResponse result) {
-        this.getLogger().info("Doctor {} ({}) is {}", result.getDoctor().getDoctorName().getName(), result.getDoctor().getLevel(), result.getAvailability());
-        this.getLatch().countDown();
-    }
-
-    @Override
-    public void onFailure(Throwable t) {
-        this.getLogger().error(String.format("Error getting doctor availability: %s", t.getMessage()));
+        this.getLogger().info(String.format("Doctor %s (%d) is %s", result.getDoctor().getDoctorName().getName(), result.getDoctor().getLevel(), result.getAvailability()));
         this.getLatch().countDown();
     }
 }

@@ -16,10 +16,10 @@ public class CarePatientCallback extends AbstractFutureCallback<EndEmergencyData
     public void onSuccess(EndEmergencyData endEmergencyData) {
 
         if (endEmergencyData.getRoomData().getPatient().getName().isEmpty()) {
-            this.getLogger().info("Room #{} remains free", endEmergencyData.getRoomNumber().getRoomNumber());
+            this.getLogger().info(String.format("Room #%d remains free", endEmergencyData.getRoomNumber().getRoomNumber()));
             this.getLatch().countDown();
         } else {
-            this.getLogger().info("Patient {} ({}) and Doctor {} ({}) are now in Room #{}", endEmergencyData.getRoomData().getPatient().getName(), endEmergencyData.getRoomData().getPatient().getLevel(), endEmergencyData.getRoomData().getDoctor().getName(), endEmergencyData.getRoomData().getDoctor().getLevel(), endEmergencyData.getRoomNumber().getRoomNumber());
+            this.getLogger().info(String.format("Patient %s (%d) and Doctor %s (%d) are now in Room #%d", endEmergencyData.getRoomData().getPatient().getName(), endEmergencyData.getRoomData().getPatient().getLevel(), endEmergencyData.getRoomData().getDoctor().getName(), endEmergencyData.getRoomData().getDoctor().getLevel(), endEmergencyData.getRoomNumber().getRoomNumber()));
             this.getLatch().countDown();
         }
     }

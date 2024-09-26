@@ -17,10 +17,6 @@ public enum Availability {
         return state.substring(0, 1).toUpperCase() + state.substring(1);
     }
 
-    // Method to compare with a string
-    public boolean equalsString(String otherState) {
-        return this.state.equalsIgnoreCase(otherState);
-    }
 
     // Override toString for easy printing
     @Override
