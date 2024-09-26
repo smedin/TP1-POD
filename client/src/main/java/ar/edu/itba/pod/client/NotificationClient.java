@@ -46,8 +46,8 @@ public class NotificationClient {
 
                     @Override
                     public void onError(Throwable throwable) {
-                        latch.countDown();
                         logger.error(throwable.getMessage());
+                        latch.countDown();
                     }
 
                     @Override

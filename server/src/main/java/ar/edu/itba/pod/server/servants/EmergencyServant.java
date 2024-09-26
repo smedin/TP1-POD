@@ -120,6 +120,9 @@ public class EmergencyServant extends EmergencyServiceGrpc.EmergencyServiceImplB
                                 .setNewOccupation(room.isNewOccupation())
                                 .build())
                         .build();
+                if(room.isNewOccupation()) {
+                    notificationManager.notifyEmergencyTaken(room);
+                }
             }
 
             listEmergencyDataBuilder.addEmergencyData(emergencyData);
