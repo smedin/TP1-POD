@@ -137,6 +137,9 @@ public class Hospital {
         try {
             Patient patient = new Patient(name, emergencyLevel);
             PatientArrival patientWithOrder = new PatientArrival(patientCount++, patient);
+            if (patientArrivals.contains(patientWithOrder)){
+                throw new PatientAlreadyInWaitingRoomException(patient.getName());
+            }
             patientArrivals.add(patientWithOrder);
             Collections.sort(patientArrivals);
 

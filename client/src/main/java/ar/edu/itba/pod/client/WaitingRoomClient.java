@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.callbacks.waitingRoom.AddPatientCallback;
 import ar.edu.itba.pod.client.callbacks.waitingRoom.CheckPatientCallback;
 import ar.edu.itba.pod.client.callbacks.waitingRoom.UpdateLevelCallback;
 import ar.edu.itba.pod.grpc.waitingRoom.PatientName;
@@ -45,7 +46,7 @@ public class WaitingRoomClient {
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
                 ListenableFuture<BoolValue> patientResponse = stub.registerPatient(patientData);
-                Futures.addCallback(patientResponse, new UpdateLevelCallback(logger, latch, patientData), executorService);
+                Futures.addCallback(patientResponse, new AddPatientCallback(logger, latch, patientData), executorService);
                 break;
             case "updateLevel":
                 latch = new CountDownLatch(1);

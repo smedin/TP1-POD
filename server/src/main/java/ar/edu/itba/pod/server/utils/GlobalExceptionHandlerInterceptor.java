@@ -5,6 +5,7 @@ import com.google.rpc.Code;
 import io.grpc.*;
 import io.grpc.protobuf.StatusProto;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.rpc.Code.*;
@@ -23,11 +24,29 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
 
         private final ServerCall<T, R> delegate;
         private final Metadata headers;
+        private final Map<Class<? extends Throwable>, Code> errorCodesByException;
 
         ExceptionHandler(ServerCall.Listener<T> listener, ServerCall<T, R> serverCall, Metadata headers) {
             super(listener);
             this.delegate = serverCall;
             this.headers = headers;
+            this.errorCodesByException = createExceptionsMap();
+        }
+
+        private Map<Class<? extends Throwable>, Code> createExceptionsMap() {
+            Map<Class<? extends Throwable>, Code> map = new HashMap<>();
+            map.put(PatientAlreadyInWaitingRoomException.class, ALREADY_EXISTS);
+            map.put(DoctorAlreadyExistsException.class, ALREADY_EXISTS);
+            map.put(DoctorIsAttendingException.class, FAILED_PRECONDITION);
+            map.put(InvalidLevelException.class, INVALID_ARGUMENT);
+            map.put(DoctorNotFoundException.class, NOT_FOUND);
+            map.put(RoomNotFoundException.class, NOT_FOUND);
+            map.put(UnableToStartEmergencyException.class, FAILED_PRECONDITION);
+            map.put(RoomNotFreeException.class, FAILED_PRECONDITION);
+            map.put(RoomFreeException.class, FAILED_PRECONDITION);
+            map.put(PatientNotFoundException.class, NOT_FOUND);
+            map.put(DoctorNotInRoomException.class, FAILED_PRECONDITION);
+            return map;
         }
 
         @Override
@@ -39,18 +58,6 @@ public class GlobalExceptionHandlerInterceptor implements ServerInterceptor {
             }
         }
 
-        private final Map<Class<? extends Throwable>, Code> errorCodesByException = Map.of(
-                DoctorAlreadyExistsException.class, ALREADY_EXISTS,
-                DoctorIsAttendingException.class, FAILED_PRECONDITION,
-                InvalidLevelException.class, INVALID_ARGUMENT,
-                DoctorNotFoundException.class, NOT_FOUND,
-                RoomNotFoundException.class, NOT_FOUND,
-                UnableToStartEmergencyException.class, FAILED_PRECONDITION,
-                RoomNotFreeException.class, FAILED_PRECONDITION,
-                RoomFreeException.class, FAILED_PRECONDITION,
-                PatientNotFoundException.class, NOT_FOUND,
-                DoctorNotInRoomException.class, FAILED_PRECONDITION
-        );
 
         private void handleException(RuntimeException exception, ServerCall<T, R> serverCall, Metadata headers) {
             Throwable error = exception;
