@@ -106,10 +106,6 @@ public class Hospital {
         boolean added;
         lock.writeLock().lock();
         try {
-            int level = doctor.getMaxLevel();
-            if( level < 1 || level > 5) {
-                throw new InvalidLevelException(level);
-            }
             added = doctors.add(doctor);
             if(!added) {
                 throw new DoctorAlreadyExistsException(doctor.getName());
@@ -157,9 +153,6 @@ public class Hospital {
         lock.writeLock().lock();
         try {
             Patient patient = getPatientByName(name);
-            if (patient == null) {
-                return;
-            }
             patient.setEmergencyLevel(emergencyLevel);
             Collections.sort(patientArrivals);
         } finally {
@@ -221,7 +214,6 @@ public class Hospital {
                     return room;
                 }
             }
-            //throw new UnableToStartEmergencyException(room.getId());
             return room;
         } finally {
             lock.writeLock().unlock();

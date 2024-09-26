@@ -1,5 +1,7 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+
 public class Patient implements Comparable<Patient> {
 
     private final String name;
@@ -7,6 +9,9 @@ public class Patient implements Comparable<Patient> {
 
     public Patient(String name, int emergencyLevel) {
         this.name = name;
+        if( emergencyLevel < 1 || emergencyLevel > 5) {
+            throw new InvalidLevelException(emergencyLevel);
+        }
         this.emergencyLevel = emergencyLevel;
     }
 
@@ -19,6 +24,9 @@ public class Patient implements Comparable<Patient> {
     }
 
     public void setEmergencyLevel(int emergencyLevel) {
+        if( emergencyLevel < 1 || emergencyLevel > 5) {
+            throw new InvalidLevelException(emergencyLevel);
+        }
         this.emergencyLevel = emergencyLevel;
     }
 

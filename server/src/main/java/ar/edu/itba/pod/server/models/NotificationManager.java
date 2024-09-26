@@ -12,43 +12,26 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class NotificationManager {
     private final Map<String, StreamObserver<Notification>> registeredDoctors = new ConcurrentHashMap<>();
-    private final Lock notificationLock = new ReentrantLock();
 
     public void registerDoctor(String doctorName, StreamObserver<Notification> observer) {
         //TODO: Before registering check outside this function if the doctor exists in hospital
-        notificationLock.lock();
-        try {
-            if (registeredDoctors.containsKey(doctorName)) {
-                throw new DoctorAlreadyRegisteredForNotificationsException(doctorName);
-            } else {
-                registeredDoctors.put(doctorName, observer);
-            }
-        } finally {
-            notificationLock.unlock();
+        if(registeredDoctors.putIfAbsent(doctorName, observer) != null) {
+            throw new DoctorAlreadyRegisteredForNotificationsException(doctorName);
         }
     }
 
     public StreamObserver<Notification> UnregisterDoctor(String doctorName) {
-        notificationLock.lock();
-        try {
-            if (!registeredDoctors.containsKey(doctorName)) {
-                throw new DoctorNotRegisteredForNotificationsException(doctorName);
-            } else {
-                return registeredDoctors.remove(doctorName); //TODO: Check if it really return the value associated with the key
-            }
-        } finally {
-            notificationLock.unlock();
+        StreamObserver<Notification> observer = registeredDoctors.remove(doctorName);
+        if (observer == null) {
+            throw new DoctorNotRegisteredForNotificationsException(doctorName);
         }
+        return observer;
     }
 
     public void notify(String doctorName, String message) {
-        notificationLock.lock();
-        try {
-            if (registeredDoctors.containsKey(doctorName)) {
-                registeredDoctors.get(doctorName).onNext(Notification.newBuilder().setMessage(message).build());
-            }
-        } finally {
-            notificationLock.unlock();
+        StreamObserver<Notification> observer = registeredDoctors.get(doctorName);
+        if (observer != null) {
+            observer.onNext(Notification.newBuilder().setMessage(message).build());
         }
     }
 
