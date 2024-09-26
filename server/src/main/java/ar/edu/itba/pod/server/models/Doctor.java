@@ -1,5 +1,7 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.server.exceptions.InvalidLevelException;
+
 import java.util.Objects;
 
 public class Doctor implements Comparable<Doctor> {
@@ -10,6 +12,9 @@ public class Doctor implements Comparable<Doctor> {
 
     public Doctor(String name, int maxLevel) {
         this.name = name;
+        if( maxLevel < 1 || maxLevel > 5) {
+            throw new InvalidLevelException(maxLevel);
+        }
         this.maxLevel = maxLevel;
         this.availability = Availability.UNAVAILABLE;
     }

@@ -20,10 +20,4 @@ public class UpdateLevelCallback extends AbstractFutureCallback<BoolValue> {
         this.getLogger().info("Patient " + this.patientData.getPatientName().getName() + " (" + this.patientData.getLevel() + ") is in the waiting room");
         this.getLatch().countDown();
     }
-
-    @Override
-    public void onFailure(Throwable t) {
-        this.getLogger().error("Error updating patient level", t);
-        this.getLatch().countDown();
-    }
 }
