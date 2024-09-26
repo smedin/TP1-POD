@@ -27,14 +27,14 @@ public class AdminServant extends AdminServiceGrpc.AdminServiceImplBase {
     }
 
     @Override
-    public void addDoctor(DoctorData request, StreamObserver<BoolValue> response) {
+    public void addDoctor(DoctorData request, StreamObserver<Empty> response) {
         String doctorName = request.getDoctorName().getName();
         int maxLevel = request.getLevel();
 
         Doctor doctor = new Doctor(doctorName, maxLevel);
 
-        boolean added = hospital.addDoctor(doctor);
-        response.onNext(BoolValue.newBuilder().setValue(added).build()); // TODO: check
+        hospital.addDoctor(doctor);
+        response.onNext(Empty.newBuilder().build());
         response.onCompleted();
     }
 

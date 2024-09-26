@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 
 service AdminService {
   rpc AddRoom(google.protobuf.Empty) returns (google.protobuf.Int32Value);
-  rpc AddDoctor(DoctorData) returns (google.protobuf.BoolValue);
+  rpc AddDoctor(DoctorData) returns (google.protobuf.Empty);
   rpc DefineAvailability(DoctorAvailability) returns (DoctorData);
   rpc GetDoctorAvailability(DoctorName) returns (DoctorAvailabilityResponse);
 }

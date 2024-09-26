@@ -10,6 +10,7 @@ import ar.edu.itba.pod.grpc.waitingRoom.TimeData;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.BoolValue;
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class WaitingRoomClient {
                                 .build())
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
-                ListenableFuture<BoolValue> patientResponse = stub.registerPatient(patientData);
+                ListenableFuture<Empty> patientResponse = stub.registerPatient(patientData);
                 Futures.addCallback(patientResponse, new AddPatientCallback(logger, latch, patientData), executorService);
                 break;
             case "updateLevel":
@@ -58,7 +59,7 @@ public class WaitingRoomClient {
                                 .build())
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
-                ListenableFuture<BoolValue> levelResponse = stub.updateEmergencyLevel(updatedPatientData);
+                ListenableFuture<Empty> levelResponse = stub.updateEmergencyLevel(updatedPatientData);
                 Futures.addCallback(levelResponse, new UpdateLevelCallback(logger, latch, updatedPatientData), executorService);
                 break;
             case "checkPatient":

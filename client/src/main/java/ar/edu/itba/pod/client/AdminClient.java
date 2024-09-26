@@ -4,7 +4,6 @@ import ar.edu.itba.pod.client.callbacks.admin.*;
 import ar.edu.itba.pod.grpc.admin.*;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.BoolValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import io.grpc.ManagedChannel;
@@ -51,7 +50,7 @@ public class AdminClient {
                         )
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
-                ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(doctorData);
+                ListenableFuture<Empty> doctorResponse = stub.addDoctor(doctorData);
                 Futures.addCallback(doctorResponse, new AddDoctorCallback(logger, latch, doctorData), executorService);
                 break;
             case "setDoctor":

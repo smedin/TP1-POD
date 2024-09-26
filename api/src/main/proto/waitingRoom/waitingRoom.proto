@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/empty.proto";
 
 package waitingRoom;
 
@@ -7,8 +8,8 @@ option java_multiple_files = true;
 import "google/protobuf/wrappers.proto";
 
 service WaitingRoomService {
-  rpc RegisterPatient(PatientData) returns (google.protobuf.BoolValue);
-  rpc UpdateEmergencyLevel(PatientData) returns (google.protobuf.BoolValue);
+  rpc RegisterPatient(PatientData) returns (google.protobuf.Empty);
+  rpc UpdateEmergencyLevel(PatientData) returns (google.protobuf.Empty);
   rpc WaitingTime(PatientName) returns (TimeData);
 }
 

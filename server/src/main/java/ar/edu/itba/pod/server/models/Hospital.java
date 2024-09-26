@@ -102,19 +102,7 @@ public class Hospital {
         }
     }
 
-    /*public Availability getDoctorAvailability(String doctorName) {
-        lock.readLock().lock();
-        try {
-            Optional<Doctor> maybeDoctor = getDoctorByName(doctorName);
-            return maybeDoctor
-                    .map(Doctor::getAvailability)
-                    .orElseThrow(() -> new DoctorNotFoundException(doctorName)); // TODO: check
-        } finally {
-            lock.readLock().unlock();
-        }
-    }*/
-
-    public boolean addDoctor(Doctor doctor) {
+    public void addDoctor(Doctor doctor) {
         boolean added;
         lock.writeLock().lock();
         try {
@@ -129,10 +117,9 @@ public class Hospital {
         } finally {
             lock.writeLock().unlock();
         }
-        return true;
     }
 
-    public boolean registerPatient(String name, int emergencyLevel) {
+    public void registerPatient(String name, int emergencyLevel) {
         lock.writeLock().lock();
         try {
             Patient patient = new Patient(name, emergencyLevel);
@@ -142,8 +129,6 @@ public class Hospital {
             }
             patientArrivals.add(patientWithOrder);
             Collections.sort(patientArrivals);
-
-            return true;
         } finally {
             lock.writeLock().unlock();
         }
@@ -168,16 +153,15 @@ public class Hospital {
         }
     }
 
-    public boolean updateEmergencyLevel(String name, int emergencyLevel) {
+    public void updateEmergencyLevel(String name, int emergencyLevel) {
         lock.writeLock().lock();
         try {
             Patient patient = getPatientByName(name);
             if (patient == null) {
-                return false;
+                return;
             }
             patient.setEmergencyLevel(emergencyLevel);
             Collections.sort(patientArrivals);
-            return true;
         } finally {
             lock.writeLock().unlock();
         }
