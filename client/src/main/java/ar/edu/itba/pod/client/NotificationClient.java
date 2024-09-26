@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NotificationClient {
@@ -30,6 +31,9 @@ public class NotificationClient {
         NotificationServiceGrpc.NotificationServiceFutureStub futureStub = NotificationServiceGrpc.newFutureStub(channel);
         NotificationServiceGrpc.NotificationServiceStub stub = NotificationServiceGrpc.newStub(channel);
 
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+
         switch (action) {
             case "register":
                 latch = new CountDownLatch(1);
@@ -37,7 +41,7 @@ public class NotificationClient {
                 StreamObserver<Notification> streamObserver = new StreamObserver<>() {
                     @Override
                     public void onNext(Notification notification) {
-                        logger.info(notification.getMessage()); //TODO: check if should be sout
+                        logger.info(notification.getMessage());
                     }
 
                     @Override
@@ -59,7 +63,7 @@ public class NotificationClient {
                 latch = new CountDownLatch(1);
                 Registration unregistration = Registration.newBuilder().setDoctorName(doctorName).build();
                 ListenableFuture<Notification> unregisterResponse = futureStub.unregisterDoctor(unregistration);
-                Futures.addCallback(unregisterResponse, new UnregisterCallback(logger, latch), Executors.newCachedThreadPool());
+                Futures.addCallback(unregisterResponse, new UnregisterCallback(logger, latch), executorService);
                 break;
             default:
                 System.exit(1);
@@ -68,6 +72,7 @@ public class NotificationClient {
             latch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            executorService.shutdown();
         }
     }
 }

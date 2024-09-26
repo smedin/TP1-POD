@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,7 @@ public class WaitingRoomClient {
         String action = System.getProperty("action");
 
         WaitingRoomServiceGrpc.WaitingRoomServiceFutureStub stub = WaitingRoomServiceGrpc.newFutureStub(channel);
+        ExecutorService executorService = Executors.newCachedThreadPool();
 
         switch (action) {
             case "addPatient":
@@ -43,7 +45,7 @@ public class WaitingRoomClient {
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
                 ListenableFuture<BoolValue> patientResponse = stub.registerPatient(patientData);
-                Futures.addCallback(patientResponse, new UpdateLevelCallback(logger, latch, patientData), Executors.newCachedThreadPool());
+                Futures.addCallback(patientResponse, new UpdateLevelCallback(logger, latch, patientData), executorService);
                 break;
             case "updateLevel":
                 latch = new CountDownLatch(1);
@@ -56,7 +58,7 @@ public class WaitingRoomClient {
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
                 ListenableFuture<BoolValue> levelResponse = stub.updateEmergencyLevel(updatedPatientData);
-                Futures.addCallback(levelResponse, new UpdateLevelCallback(logger, latch, updatedPatientData), Executors.newCachedThreadPool());
+                Futures.addCallback(levelResponse, new UpdateLevelCallback(logger, latch, updatedPatientData), executorService);
                 break;
             case "checkPatient":
                 latch = new CountDownLatch(1);
@@ -65,7 +67,7 @@ public class WaitingRoomClient {
                         .setName(System.getProperty("patient"))
                         .build();
                 ListenableFuture<TimeData> checkResponse = stub.waitingTime(patient);
-                Futures.addCallback(checkResponse, new CheckPatientCallback(logger, latch), Executors.newCachedThreadPool());
+                Futures.addCallback(checkResponse, new CheckPatientCallback(logger, latch), executorService);
                 break;
             default:
                 break;
@@ -77,6 +79,7 @@ public class WaitingRoomClient {
             logger.error("Error waiting for latch", e);
         } finally {
             channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+            executorService.shutdown();
         }
     }
 

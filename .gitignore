@@ -27,4 +27,7 @@ replay_pid*
 
 target/
 
-./executables/*
+executables
+
+executables/server.sh
+/executables

@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class AdminClient {
     private static Logger logger = LoggerFactory.getLogger(AdminClient.class);
@@ -30,11 +32,13 @@ public class AdminClient {
 
         AdminServiceGrpc.AdminServiceFutureStub stub = AdminServiceGrpc.newFutureStub(channel);
 
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
         switch (action) {
             case "addRoom":
                 latch = new CountDownLatch(1);
                 ListenableFuture<Int32Value> roomResponse = stub.addRoom(Empty.newBuilder().build());
-                Futures.addCallback(roomResponse, new AddRoomCallback(logger, latch), Executors.newCachedThreadPool());
+                Futures.addCallback(roomResponse, new AddRoomCallback(logger, latch), executorService);
                 break;
             case "addDoctor":
                 latch = new CountDownLatch(1);
@@ -48,7 +52,7 @@ public class AdminClient {
                         .setLevel(Integer.parseInt(System.getProperty("level")))
                         .build();
                 ListenableFuture<BoolValue> doctorResponse = stub.addDoctor(doctorData);
-                Futures.addCallback(doctorResponse, new AddDoctorCallback(logger, latch, doctorData), Executors.newCachedThreadPool());
+                Futures.addCallback(doctorResponse, new AddDoctorCallback(logger, latch, doctorData), executorService);
                 break;
             case "setDoctor":
                 latch = new CountDownLatch(1);
@@ -58,7 +62,7 @@ public class AdminClient {
                         .setAvailability(System.getProperty("availability"))
                         .build();
                 ListenableFuture<DoctorData> availabilityResponse = stub.defineAvailability(doctorAvailability);
-                Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch, doctorAvailability), Executors.newCachedThreadPool());
+                Futures.addCallback(availabilityResponse, new DefineAvailabilityCallback(logger, latch, doctorAvailability), executorService);
                 break;
             case "checkDoctor":
                 latch = new CountDownLatch(1);
@@ -66,7 +70,7 @@ public class AdminClient {
                         .newBuilder()
                         .setName(System.getProperty("doctor"))
                         .build());
-                Futures.addCallback(doctorAvailabilityResponse, new GetDoctorAvailabilityCallback(logger, latch), Executors.newCachedThreadPool());
+                Futures.addCallback(doctorAvailabilityResponse, new GetDoctorAvailabilityCallback(logger, latch), executorService);
                 break;
             default:
                 System.exit(1);
@@ -79,7 +83,9 @@ public class AdminClient {
             Thread.currentThread().interrupt();
             logger.error("Error waiting for latch: " + e.getMessage());
         } finally {
-            channel.shutdownNow();
+            channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+            executorService.shutdown();
+
         }
     }
 }
